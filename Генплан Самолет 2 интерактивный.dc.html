@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<script src="./genplan_core.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body { margin: 0; background: #f4f2ee; }
+  @keyframes omPinGlow { 0%, 100% { opacity: 0.28; transform: scale(0.92); } 50% { opacity: 0.7; transform: scale(1.12); } }
+  a { color: #a3312b; }
+  a:hover { color: #7a241d; }
+</style>
+<script src="./samolet2_data.js"></script>
+<script src="./traffic.js"></script>
+<script src="./plan_geo.js"></script>
+<script src="./nto_pads.js"></script>
+<script src="./nto_sz.js"></script>
+<script src="./kp_addr.js"></script>
+<script src="./unit_status.js"></script>
+<script src="./sales.js"></script>
+<script src="./prices_net.js"></script>
+<script src="./volumes.js"></script>
+<script src="./utilities.js"></script>
+<script src="./costs_zpif.js"></script>
+</helmet>
+<div style="background: {{ pageBg }}; min-height: 100vh;">
+<div style="max-width: 1500px; margin: 0 auto; padding: 24px; font-family: Georgia, 'Times New Roman', serif; color: {{ textColor }}; display: flex; gap: 20px; align-items: flex-start;">
+ <div style="flex: 1; min-width: 0;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+    <a href="Генплан интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Рекорд»</a>
+    <a href="Генплан Самолет 1 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 1»</a>
+    <div style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid {{ textColor }}; background: {{ textColor }}; color: {{ pageBg }};">ЖК «Самолёт 2»</div>
+    <a href="Генплан Самолет 3 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 3»</a>
+    <a href="Генплан Самолет 4 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 4»</a>
+    <a href="Генплан Самолет 5 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 5»</a>
+    <a href="Генплан Самолет 6 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 6»</a>
+    <a href="Матрица ЖК Самолет.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">Матрица ЖК «Самолёт»</a>
+  </div>
+  <div style="margin-bottom: 16px; position: relative; padding-right: 90px;">
+    <div style="font-size: 28px; font-weight: 700; letter-spacing: 0.5px; overflow-wrap: break-word;">ЖК «Самолёт 2» — интерактивный генплан</div>
+    <div style="font-size: 15px; color: {{ mutedColor }}; margin-top: 4px;">Наведите курсор на подъезд, чтобы увидеть краткую информацию, кликните — чтобы увидеть список помещений</div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+      <div style="font-size: 13px; font-weight: 700; color: #a3312b; border: 1px solid #a3312b; border-radius: 4px; padding: 5px 12px; cursor: pointer;" onMouseEnter="{{ enterSummary }}" onMouseLeave="{{ leaveSummary }}" onClick="{{ toggleSummary }}">Сводка по ЖК</div>
+      <div style="font-size: 13px; font-weight: 700; color: {{ activeBtnFg }}; background: {{ activeBtnBg }}; border: 1px solid #a3312b; border-radius: 4px; padding: 5px 12px; cursor: pointer;" onClick="{{ toggleActive }}">{{ activeBtnLabel }}</div>
+      <div style="display: flex; border: 1px solid #a3312b; border-radius: 4px; overflow: hidden;">
+        <div style="font-size: 13px; font-weight: 700; color: {{ trafficOverlayFg }}; background: {{ trafficOverlayBg }}; padding: 5px 12px; cursor: pointer;" onClick="{{ toggleTrafficOverlay }}">Трафик на плане</div>
+        <div style="font-size: 13px; font-weight: 700; color: {{ trafficDataFg }}; background: {{ trafficDataBg }}; padding: 5px 12px; cursor: pointer; border-left: 1px solid #a3312b;" onClick="{{ toggleTrafficData }}">Данные</div>
+      </div>
+    </div>
+    <sc-if value="{{ trafficPanelVisible }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; top: 100%; left: 0; z-index: 12; width: 660px; max-width: calc(100vw - 48px); max-height: 70vh; overflow-y: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); padding: 20px 24px; margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+          <div style="font-size: 17px; font-weight: 700; color: #2b2620;">Карта трафика</div>
+          <div style="font-size: 11px; color: #a3312b; font-weight: 700; cursor: pointer;" style-hover="color: #7a241d;" onClick="{{ trafficHidePanel }}">закрыть</div>
+        </div>
+        <div style="font-size: 11px; color: #948f83; line-height: 1.5; margin-bottom: 14px;">{{ trafficNote }}</div>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; font-size: 12px; margin-bottom: 16px; padding: 10px 12px; border-radius: 8px; background: #f4f1ea;">
+          <sc-for list="{{ trafficStats }}" as="ts" hint-placeholder-count="4">
+            <div style="color: #6f6a60;">{{ ts.k }}</div><div style="color: #2b2620; text-align: right;">{{ ts.v }}</div>
+          </sc-for>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #a89f8f; margin-bottom: 8px;">Магниты трафика по реестру аренды</div>
+        <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto auto; gap: 5px 14px; font-size: 12px; align-items: baseline; margin-bottom: 18px;">
+          <sc-for list="{{ trafficMagnets }}" as="mg" hint-placeholder-count="6">
+            <div style="color: #2b2620; border-top: 1px solid #ddd8cd; padding-top: 5px; overflow-wrap: anywhere;">{{ mg.name }}</div>
+            <div style="color: #6f6a60; border-top: 1px solid #ddd8cd; padding-top: 5px; overflow-wrap: anywhere;">{{ mg.cat }}</div>
+            <div style="color: #6f6a60; border-top: 1px solid #ddd8cd; padding-top: 5px; white-space: nowrap;">{{ mg.area }}</div>
+            <div style="color: #a3312b; font-weight: 700; border-top: 1px solid #ddd8cd; padding-top: 5px; white-space: nowrap;">вес {{ mg.weight }}</div>
+            <div style="grid-column: 1 / -1; font-size: 11px; color: #948f83; margin-top: -2px;">{{ mg.liter }}</div>
+          </sc-for>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #a89f8f; margin-bottom: 8px;">Свободные помещения с лучшим трафиком</div>
+        <div style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 5px 14px; font-size: 12px; align-items: baseline;">
+          <sc-for list="{{ trafficVacancies }}" as="tv" hint-placeholder-count="8">
+            <div style="color: #2b2620; font-weight: 700; border-top: 1px solid #ddd8cd; padding-top: 5px; white-space: nowrap;">{{ tv.number }}</div>
+            <div style="color: #6f6a60; border-top: 1px solid #ddd8cd; padding-top: 5px; overflow-wrap: anywhere;">{{ tv.liter }}</div>
+            <div style="color: #6f6a60; border-top: 1px solid #ddd8cd; padding-top: 5px; white-space: nowrap;">{{ tv.area }}</div>
+            <div style="color: {{ tv.color }}; font-weight: 700; border-top: 1px solid #ddd8cd; padding-top: 5px; white-space: nowrap;">{{ tv.idx }} · {{ tv.mark }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <div style="position: absolute; top: 0; right: 0; z-index: 13; width: 78px; height: 78px; border-radius: 50%; padding: 6px; transition: box-shadow 0.2s ease; box-sizing: border-box; cursor: pointer; background: {{ occRing }}; box-shadow: 0 4px 14px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(0,0,0,0.06);" style-hover="box-shadow: 0 8px 22px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.1);" onClick="{{ toggleOccupancy }}" title="Заселенность — расчётная численность жильцов">
+      <div style="width: 100%; height: 100%; border-radius: 50%; background: {{ cardBg }}; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.12);">
+        <div style="font-size: 17px; font-weight: 700; color: {{ textColor }}; line-height: 16px; letter-spacing: -0.4px;">{{ occResidents }}</div>
+        <div style="font-size: 6.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: {{ mutedColor }}; margin-top: 3px;">жильцов</div>
+      </div>
+    </div>
+    <sc-if value="{{ occupancyVisible }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; top: 100%; right: 0; z-index: 12; width: 620px; max-width: calc(100vw - 48px); background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); padding: 20px 24px; margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+          <div style="font-size: 17px; font-weight: 700; color: {{ textColor }};">Заселенность жилья</div>
+          <div style="font-size: 18px; font-weight: 700; color: #a3312b;">{{ occResidents }} чел. · {{ occPct }}</div>
+        </div>
+        <div style="font-size: 11px; color: {{ mutedColor }}; margin-bottom: 12px;">{{ occNote }}</div>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; font-size: 12px; margin-bottom: 16px; padding: 10px 12px; border-radius: 8px; background: #f4f1ea;">
+          <div style="color: {{ mutedColor }};">Норма ХВС на 1 жителя</div><div style="color: {{ textColor }}; text-align: right; white-space: nowrap;">{{ normWaterLabel }}</div>
+          <div style="color: {{ mutedColor }};">Электро на 1 жителя, факт</div><div style="color: {{ textColor }}; text-align: right; white-space: nowrap;">{{ occPowerPerRes }}</div>
+          <div style="color: {{ mutedColor }};">Численность по ХВС</div><div style="color: {{ textColor }}; text-align: right; white-space: nowrap;">{{ occByWater }}</div>
+          <div style="color: {{ mutedColor }};">Проектная численность ЖК</div><div style="color: {{ textColor }}; text-align: right; white-space: nowrap;">{{ occCapacity }}</div>
+        </div>
+        <sc-if value="{{ volumeHousesCount }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #a89f8f; margin-bottom: 8px;">Дома в расчёте · {{ volumeHousesCount }} · {{ volumeMonth }}</div>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 4px 14px; font-size: 11.5px; margin-bottom: 18px;">
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }};">Адрес</div>
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }}; text-align: right;">Лиц. счетов</div>
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }}; text-align: right;">ХВС, м³</div>
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }}; text-align: right;">Электро, кВт·ч</div>
+            <sc-for list="{{ volumeHouses }}" as="vh" hint-placeholder-count="4">
+              <div style="color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 4px; overflow-wrap: anywhere;">{{ vh.addr }}</div>
+              <div style="color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 1px solid {{ borderColor }}; padding-top: 4px;">{{ vh.accounts }}</div>
+              <div style="color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 1px solid {{ borderColor }}; padding-top: 4px;">{{ vh.water }}</div>
+              <div style="color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 1px solid {{ borderColor }}; padding-top: 4px;">{{ vh.power }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ occTrendCount }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-bottom: 20px; padding: 16px 18px 10px; border-radius: 10px; background: #faf7f0; border: 1px solid {{ borderColor }};">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+              <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #a89f8f;">Динамика заселенности</div>
+              <div style="font-size: 13px; font-weight: 700; color: {{ occTrendTotalColor }}; white-space: nowrap;">{{ occTrendTotal }}</div>
+            </div>
+            <div style="font-size: 11px; color: {{ mutedColor }}; margin-top: 3px;">{{ occTrendNote }}</div>
+            <div style="position: relative; height: 128px; margin-top: 18px;">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;">
+                <line x1="0" y1="97" x2="100" y2="97" stroke="{{ borderColor }}" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                <line x1="0" y1="50" x2="100" y2="50" stroke="{{ borderColor }}" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"></line>
+                <path d="{{ occTrendArea }}" fill="rgba(163, 49, 43, 0.09)"></path>
+                <path d="{{ occTrendCurve }}" fill="none" stroke="#a3312b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+              </svg>
+              <sc-for list="{{ occTrend }}" as="tp" hint-placeholder-count="6">
+                <div style="position: absolute; left: {{ tp.left }}; top: {{ tp.top }}; transform: translate(-50%, -50%); width: 9px; height: 9px; border-radius: 50%; background: {{ tp.dotBg }}; border: 2px solid #fffdf9; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);"></div>
+                <div style="position: absolute; left: {{ tp.left }}; top: {{ tp.top }}; transform: translate(-50%, -24px); font-size: 11.5px; font-weight: 700; color: {{ tp.labelColor }}; white-space: nowrap;">{{ tp.value }}</div>
+              </sc-for>
+            </div>
+            <div style="position: relative; height: 34px; margin-top: 2px;">
+              <sc-for list="{{ occTrend }}" as="tq" hint-placeholder-count="6">
+                <div style="position: absolute; left: {{ tq.left }}; top: 0; transform: translateX(-50%); text-align: center; white-space: nowrap;">
+                  <div style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }};">{{ tq.month }}</div>
+                  <div style="font-size: 10px; font-weight: 700; color: {{ tq.deltaColor }}; margin-top: 2px;">{{ tq.delta }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #a89f8f; margin-bottom: 8px;">Суммарное потребление жилой части ЖК</div>
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px 18px; font-size: 12px; align-items: baseline;">
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }};">Месяц</div>
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }}; text-align: right;">ХВС, м³</div>
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }}; text-align: right;">Электро, кВт·ч</div>
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {{ mutedColor }}; text-align: right;">Жильцы</div>
+          <sc-for list="{{ utilityRows }}" as="row" hint-placeholder-count="12">
+            <div style="color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 5px;">{{ row.month }}</div>
+            <div style="color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 1px solid {{ borderColor }}; padding-top: 5px;">{{ row.water }}</div>
+            <div style="color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 1px solid {{ borderColor }}; padding-top: 5px;">{{ row.power }}</div>
+            <div style="color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 1px solid {{ borderColor }}; padding-top: 5px;">{{ row.residents }}</div>
+          </sc-for>
+          <div style="font-weight: 700; color: {{ textColor }}; border-top: 2px solid {{ textColor }}; padding-top: 6px;">Итого за год</div>
+          <div style="font-weight: 700; color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 2px solid {{ textColor }}; padding-top: 6px;">{{ utilityWaterTotal }}</div>
+          <div style="font-weight: 700; color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 2px solid {{ textColor }}; padding-top: 6px;">{{ utilityPowerTotal }}</div>
+          <div style="font-weight: 700; color: {{ textColor }}; text-align: right; white-space: nowrap; border-top: 2px solid {{ textColor }}; padding-top: 6px;">{{ occResidents }}</div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ summaryVisible }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; top: 100%; left: 0; z-index: 10; max-width: calc(100vw - 48px); overflow-x: auto; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); padding: 24px 30px; margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px;">
+          <div style="font-size: 17px; font-weight: 700; color: {{ textColor }};">Сводка по ЖК</div>
+          <div style="font-size: 11px; color: #948f83;">Данные на 01.09.2026</div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Статус в ДВК</div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: minmax(126px, auto); align-items: stretch; width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Всего помещений</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openTotal }}">{{ totalCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ totalArea }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42;">
+            <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Продано</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openSold }}">{{ soldCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ soldArea }}</div>
+            <div style="font-size: 10px; font-weight: 700; color: {{ textColor }}; margin-top: 5px; line-height: 13.5px; letter-spacing: 0.1px; text-wrap: pretty;">фактические продажи: {{ soldSum }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">из них с агентскими: {{ soldAgentSum }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">агентское вознаграждение: {{ soldAgentFee }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">средняя цена (с агентскими): {{ soldAvgSqm }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">рыночная стоимость сегодня: {{ soldNowSum }}</div>
+            <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ soldFactNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42;">
+            <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Передано в ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openDvkOwned }}">{{ dvkOwnedCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ dvkOwnedArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">литеры и отдельно стоящая коммерция в ДВК</div>
+            <div style="display: grid; gap: 3px; margin-top: 7px; padding-top: 6px; border-top: 1px solid rgba(58,122,66,0.28);">
+              <sc-for list="{{ dvkOwners }}" as="line" hint-placeholder-count="2">
+                <div style="font-size: 10px; color: #6f6a60; line-height: 1.35;">{{ line }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusRedBg }}; border-top: 3px solid #a3312b;">
+            <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Не передано в ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openNotDvk }}">{{ notdvkCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ notdvkArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">остаётся в контуре ГК</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusOrangeBg }}; border-top: 3px solid #c98a2b;">
+            <div style="font-size: 11px; color: #c98a2b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В процессе передачи в ДВК</div>
+            <div style="font-size: 26px; font-weight: 700; color: {{ statusNeutralBorder }};">0</div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">0 м²</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 4px;">все объекты переданы</div>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px;">Использование</div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: minmax(126px, auto); align-items: stretch; width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42;">
+            <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В аренде</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openULeased }}">{{ uLeasedCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ uLeasedArea }}</div>
+            <div style="font-size: 10px; font-weight: 700; color: {{ textColor }}; margin-top: 5px; line-height: 13.5px; letter-spacing: 0.1px; text-wrap: pretty;">поток: {{ uLeasedMonth }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;" title="Площадь помещений без проданных × медианная рыночная ставка × 12 мес">максимум: {{ uLeasedMaxFlow }}</div>
+            <div style="font-size: 10px; font-weight: 700; margin-top: 3px; line-height: 13.5px; letter-spacing: 0.1px; text-wrap: pretty; color: {{ uLeasedEffColor }};" title="Фактический арендный поток / максимальный × 100%">эконом. эффективность: {{ uLeasedEff }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">каникулы закончены</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusOrangeBg }}; border-top: 3px solid #c98a2b;">
+            <div style="font-size: 11px; color: #c98a2b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В простое с арендатором</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #c98a2b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openUIdleT }}">{{ uIdleTCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ uIdleTArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">стартовые каникулы</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusRedBg }}; border-top: 3px solid #a3312b;">
+            <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В простое</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openUIdle }}">{{ uIdleCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ uIdleArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">РНВ есть, арендатора нет</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Не введено, с арендатором</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openUNvT }}">{{ uNvTCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ uNvTArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">договор есть, нет РНВ или стройготовности</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Не введено в эксплуатацию</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openUNv }}">{{ uNvCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ uNvArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">без арендатора, нет РНВ или стройготовности</div>
+          </div>
+        </div>
+
+    <sc-if value="{{ hasNto }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px;">НТО</div>
+          <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: minmax(126px, auto); align-items: stretch; width: 1040px; gap: 10px;">
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Всего НТО и ЗУ</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openNto }}">{{ ntoCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ ntoArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">в «Всего помещений» не входят</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42;">
+              <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В аренде</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openNtoLeased }}">{{ ntoLeasedCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ ntoLeasedArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">каникулы закончены</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusOrangeBg }}; border-top: 3px solid #c98a2b;">
+              <div style="font-size: 11px; color: #c98a2b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В простое с арендатором</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #c98a2b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openNtoIdleT }}">{{ ntoIdleTCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ ntoIdleTArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">договор есть, каникулы идут</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusRedBg }}; border-top: 3px solid #a3312b;">
+              <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В простое</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openNtoIdle }}">{{ ntoIdleCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ ntoIdleArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">без договора аренды</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Арендная плата</div>
+              <div style="white-space: nowrap;"><span style="font-size: 20px; font-weight: 700; color: {{ textColor }};">{{ ntoRentSum }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ ntoNote }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;" title="Вся площадь НТО, остановок и ЗУ × ставка 2 000 ₽/м² × 12 мес">максимум: {{ ntoMaxFlow }}</div>
+              <div style="font-size: 10px; font-weight: 700; margin-top: 3px; line-height: 13.5px; letter-spacing: 0.1px; text-wrap: pretty; color: {{ ntoEffColor }};" title="Фактическая арендная плата / максимальную × 100%">эконом. эффективность: {{ ntoEff }}</div>
+            </div>
+          </div>
+
+    </sc-if>
+        <sc-if value="{{ yieldShow }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px;">Доходность</div>
+          <div style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); grid-auto-rows: minmax(126px, auto); align-items: stretch; width: 1040px; gap: 10px;">
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 0; grid-column: span 3;" title="Доходы: начисленная аренда + плата за управление, минус скидки; расходы: невозмещаемые CAPEX с начала года (01.01–31.08.2026)">
+              <div style="font-size: 10px; color: #948f83; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; font-weight: 700;">NOI</div>
+              <div style="white-space: nowrap;"><span style="font-size: 20px; font-weight: 700; color: {{ textColor }};">{{ yNoi }}</span></div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yNoiNote }}</div>
+              <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">аренда + управление − CAPEX</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 0; grid-column: span 3;">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Cap rate</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ yCapColor }};">{{ yCap }}</span></div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yCapNote }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 0; order: 2; grid-column: 1 / span 3;" title="Доходность на вложения: NOI в годовом выражении к OPEX">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">YoC</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ yYocColor }};">{{ yYoc }}</span></div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yYocNote }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 0; grid-column: span 3;" title="Cap rate + ожидаемая динамика цены актива (экспертная оценка)">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Полная доходность актива</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ yFullColor }};">{{ yFull }}</span></div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yFullNote }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusOrangeBg }}; border-top: 3px solid #c98a2b; min-width: 0; grid-column: span 3;" title="Помещения в аренде, где действующая ставка ниже рыночной более чем на 2%">
+              <div style="font-size: 11px; color: #8a5c1a; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Ставка ниже рынка</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #8a5c1a; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openRentBelowMkt }}">{{ rentBelowMktCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px;">{{ rentBelowMktArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ rentBelowMktNote }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42; min-width: 0; grid-column: span 3;" title="Помещения в аренде, где действующая ставка не ниже рыночной (по рынку или выше)">
+              <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Ставка по рынку и выше</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openRentAboveMkt }}">{{ rentAboveMktCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px;">{{ rentAboveMktArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ rentAboveMktNote }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 0; order: 2; grid-column: span 3;" title="Фактический NOI с начала года в счёт возврата вложений, не больше OPEX">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Возвращённый OPEX</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b4a8c;">{{ yBack }}</span></div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yBackNote }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 0; order: 2; grid-column: span 3;">
+              <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Общая доходность вложений</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ yTotalColor }};">{{ yTotal }}</span></div>
+              <div style="font-size: 11.5px; font-weight: 700; color: {{ yTotalColor }}; margin-top: 3px; line-height: 14px;">{{ yTotalSum }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yTotalNote }}</div>
+              <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">без учёта НТО, остановок и ЗУ — цены не установлены</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusRedBg }}; border-top: 3px solid #a3312b; min-width: 0; order: 2; grid-column: span 3;">
+              <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Доходность вложений ниже нормы</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openEffBelow }}">{{ effBelowCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ effBelowArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yNormBelow }}</div>
+              <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ yBelowSplit }}</div>
+            </div>
+            <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42; min-width: 0; order: 2; grid-column: span 3;">
+              <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Доходность вложений выше нормы</div>
+              <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openEffAbove }}">{{ effAboveCount }}</span></div>
+              <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ effAboveArea }}</div>
+              <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ yNormAbove }}</div>
+              <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ yAboveSplit }}</div>
+            </div>
+          </div>
+        </sc-if>
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px;">Стройка и контроль</div>
+        <div style="display: flex; align-items: stretch; gap: 10px; width: 1040px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }}; min-width: 210px;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В простое 6+ мес</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openStuck6 }}">{{ stuck6Count }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ stuck6Area }}</div>
+            <div style="font-size: 11px; font-weight: 700; color: #a3312b; margin-top: 4px; line-height: 14px; text-wrap: pretty;">потери: {{ stuck6Loss }}</div>
+            <div style="font-size: 9.5px; color: #a89f8f; margin-top: 2px; line-height: 12px;">{{ stuck6LossNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusRedBg }}; border-top: 3px solid #a3312b; min-width: 230px;">
+            <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Потери по стройготовности</div>
+            <div style="white-space: nowrap;"><span style="font-size: 20px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openBuildLoss }}">{{ buildLossSum }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ buildLossCount }} пом. · {{ buildLossArea }}</div>
+            <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ buildLossNote }}</div>
+          </div>
+          <div style="display: flex; align-items: center; position: relative; flex: 1;">
+            <div style="padding: 14px 22px; border-radius: 8px; background: #a3312b; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; width: 100%; text-align: center; box-sizing: border-box;" style-hover="opacity: 0.85;" onClick="{{ toggleProblems }}">Проблемы</div>
+            <sc-if value="{{ problemsVisible }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 20; min-width: 420px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 14px 18px;">
+                <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">Проблемы по ЖК</div>
+                <sc-for list="{{ problemRows }}" as="p" hint-placeholder-count="4">
+                  <div style="padding: 6px 0; border-top: 1px solid {{ borderColor }};">
+                    <div style="font-size: 13px; color: {{ textColor }}; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ p.onClick }}">{{ p.title }}</div>
+                    <div style="font-size: 12px; font-weight: 700; color: {{ p.color }}; margin-top: 2px;">{{ p.verdict }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display: flex; align-items: center; position: relative; flex: 1;">
+            <div style="padding: 14px 22px; border-radius: 8px; background: #2b2a27; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; width: 100%; text-align: center; box-sizing: border-box;" style-hover="opacity: 0.85;" onClick="{{ toggleEfficiency }}">Маркеры эффективности</div>
+            <sc-if value="{{ efficiencyVisible }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 20; min-width: 470px; max-height: 70vh; overflow-y: auto; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 16px 20px;">
+                <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;">Маркеры эффективности УК</div>
+                <sc-for list="{{ effRows }}" as="r" hint-placeholder-count="10">
+                  <div style="font-size: {{ r.size }}; font-weight: {{ r.weight }}; color: {{ r.color }}; text-transform: {{ r.tt }}; letter-spacing: 0.4px; margin: {{ r.mt }} 0 4px; cursor: help;" title="{{ r.hint }}">{{ r.text }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px; padding-top: 16px; border-top: 1px solid {{ borderColor }};">Финансы</div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }};">
+            <div style="font-size: 11px; color: {{ mutedColor }}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Сумма продаж (факт)</div>
+            <div style="font-size: 18px; font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ soldSum }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">средняя цена: {{ soldAllAvgSqm }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 6px; line-height: 13.5px; text-wrap: pretty;">годовой рост цены: <span style="font-weight: 700; color: #3a7a42;">{{ soldGrowthPct }}</span></div>
+            <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ soldGrowthNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }};">
+            <div style="font-size: 11px; color: {{ mutedColor }}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Непроданный портфель (рыночная)</div>
+            <div style="font-size: 18px; font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ unsoldSum }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">средняя цена: {{ unsoldAvgSqm }}</div>
+            <div style="font-size: 10px; font-weight: 700; margin-top: 3px; line-height: 13.5px; letter-spacing: 0.1px; text-wrap: pretty; color: {{ unsoldGrowthColor }};" title="Сумма приростов цены актива (рыночная цена − OPEX), делённая на срок с даты РНВ по 31.08.2026">прирост цены: {{ unsoldGrowth }}</div>
+            <div style="font-size: 13px; font-weight: 800; margin-top: 3px; line-height: 15px; text-wrap: pretty; color: {{ unsoldGrowthColor }};">{{ unsoldGrowthPct }}</div>
+            <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">без учёта НТО, остановок и ЗУ — цены не установлены</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }};">
+            <div style="font-size: 11px; color: {{ mutedColor }}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Арендная плата с начала года</div>
+            <div style="font-size: 18px; font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ rentYtdSum }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ rentYtdNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }};">
+            <div style="font-size: 11px; color: {{ mutedColor }}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Дебиторская задолженность</div>
+            <div style="font-size: 18px; font-weight: 700; color: {{ statusNeutralBorder }}; white-space: nowrap;">—</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">нет данных о начислениях</div>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px; padding-top: 16px; border-top: 1px solid {{ borderColor }};">Квартальная динамика договоров аренды</div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: minmax(126px, auto); align-items: stretch; width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Подписано</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openQSigned }}">{{ qSignedCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ qSignedArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ qSignedNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusNeutralBg }}; border-top: 3px solid {{ statusNeutralBorder }};">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Активировано</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: {{ textColor }}; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openQActivated }}">{{ qActivatedCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ qActivatedArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">передано арендатору · {{ qActivatedNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusGreenBg }}; border-top: 3px solid #3a7a42;">
+            <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В работе</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openQWorking }}">{{ qWorkingCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ qWorkingArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">каникулы закончились · {{ qWorkingNote }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusOrangeBg }}; border-top: 3px solid #c98a2b;">
+            <div style="font-size: 11px; color: #c98a2b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Расторгнуто до начала работы</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #c98a2b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openQTermBefore }}">{{ qTermBeforeCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ qTermBeforeArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">каникулы не закончились · {{ qTermBeforeNote }}</div>
+            <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ qTermBeforeBy }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: {{ statusRedBg }}; border-top: 3px solid #a3312b;">
+            <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Расторгнуто после начала работы</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openQTermAfter }}">{{ qTermAfterCount }}</span></div>
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ qTermAfterArea }}</div>
+            <div style="font-size: 10px; color: #8e877b; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">арендатор работал · {{ qTermAfterNote }}</div>
+            <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ qTermAfterBy }}</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid {{ borderColor }}; display: grid; grid-template-columns: repeat(4, 1fr); width: 1040px; gap: 12px;">
+          <div style="min-width: 0;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Топ-5 «зависших» помещений</div>
+            <sc-for list="{{ topStuck }}" as="s" hint-placeholder-count="5">
+              <div style="font-size: 12px; color: {{ textColor }}; margin-bottom: 4px;">№{{ s.number }} · {{ s.location }} — <b>{{ s.days }}</b> дн.</div>
+            </sc-for>
+          </div>
+          <div style="min-width: 200px;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Ликвидность: не передано в ДВК</div>
+            <sc-for list="{{ liqNotDvk }}" as="line" hint-placeholder-count="2">
+              <div style="font-size: 12px; color: {{ textColor }}; margin-bottom: 4px;">{{ line }}</div>
+            </sc-for>
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 10px 0 8px;">Ликвидность: в простое</div>
+            <sc-for list="{{ liqDvkIdle }}" as="line" hint-placeholder-count="2">
+              <div style="font-size: 12px; color: {{ textColor }}; margin-bottom: 4px;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="min-width: 200px;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Арендаторы по категориям</div>
+            <sc-for list="{{ tenantCategories }}" as="line" hint-placeholder-count="3">
+              <div style="font-size: 12px; color: {{ textColor }}; margin-bottom: 4px;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="min-width: 220px;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Долг/просрочка по арендаторам</div>
+            <div style="font-size: 12px; color: #948f83;">нет данных</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ showActive }}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 8px; font-size: 11.5px; color: {{ mutedColor }};">
+      <div style="font-weight: 700; color: {{ textColor }};">Цвет витрины — категория арендатора:</div>
+      <sc-for list="{{ sfLegend }}" as="lg" hint-placeholder-count="0">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 16px; height: 4px; border-radius: 2px; background: {{ lg.c }};"></div>
+          <div>{{ lg.name }} · {{ lg.n }}</div>
+        </div>
+      </sc-for>
+      <div>Длина полосы — фронт помещения по поэтажному плану</div>
+    </div>
+  </sc-if>
+  <div style="position: relative; width: 100%; border: 1px solid {{ borderColor }}; border-radius: 6px; overflow: visible; background: {{ imgCardBg }};">
+    <img src="assets/genplan_samolet2.png" alt="Генплан ЖК «Самолёт 2»" style="width: 100%; display: block;">
+    <sc-for list="{{ activeMarks }}" as="am" hint-placeholder-count="0">
+      <div onMouseEnter="{{ am.onTip }}" onMouseLeave="{{ am.offTip }}" style="position: absolute; left: {{ am.left }}; top: {{ am.top }}; transform: translate(-50%, -50%); z-index: 3; pointer-events: {{ am.pe }};">
+        <div style="position: relative; width: 40px; height: 16px; transform: {{ am.rot }};">
+          <div style="position: absolute; left: 0; right: 9px; top: 50%; height: 2px; margin-top: -1px; background: {{ am.c }}; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.9); border-radius: 2px;"></div>
+          <div style="position: absolute; left: -4px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: {{ am.c }}; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.9);"></div>
+          <div style="position: absolute; right: -6px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; background: {{ am.glow }}; animation: omPinGlow 2.4s ease-in-out infinite;"></div>
+          <div style="position: absolute; right: 0; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, {{ am.lite }}, {{ am.c }} 55%, {{ am.dark }}); border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);"></div>
+        </div>
+      </div>
+    </sc-for>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+      <sc-for list="{{ buildingPolys }}" as="bp" hint-placeholder-count="14">
+        <polygon points="{{ bp.points }}" fill="{{ bp.fill }}" stroke="{{ bp.stroke }}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" style="pointer-events: all; cursor: pointer;" onMouseEnter="{{ bp.onEnter }}" onMouseLeave="{{ leave }}" onClick="{{ bp.onClick }}"></polygon>
+      </sc-for>
+      <sc-for list="{{ storefronts }}" as="sf" hint-placeholder-count="0">
+        <polyline points="{{ sf.points }}" fill="none" stroke="{{ sf.c }}" stroke-width="7" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.9" style="pointer-events: stroke;" onMouseEnter="{{ sf.onTip }}" onMouseLeave="{{ sf.offTip }}"></polyline>
+      </sc-for>
+    </svg>
+    <sc-if value="{{ activeTip }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: {{ activeTip.left }}; top: {{ activeTip.top }}; transform: translate(-50%, calc(-100% - 12px)); z-index: 6; pointer-events: none; max-width: 300px; padding: 6px 10px; border-radius: 5px; background: #2b2a27; color: #fffdf9; font-size: 11.5px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);">{{ activeTip.text }}</div>
+    </sc-if>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3;">
+      <sc-for list="{{ ntoPads }}" as="np" hint-placeholder-count="0">
+        <polygon points="{{ np.points }}" fill="{{ np.fill }}" stroke="{{ np.stroke }}" stroke-width="1.6" vector-effect="non-scaling-stroke" style="pointer-events: all; cursor: pointer;" onMouseEnter="{{ np.onEnter }}" onMouseLeave="{{ np.onLeave }}" onClick="{{ np.onClick }}"></polygon>
+      </sc-for>
+    </svg>
+    <sc-if value="{{ ntoTip }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: {{ ntoTip.left }}; top: {{ ntoTip.top }}; transform: translate(-50%, calc(-100% - 10px)); z-index: 6; pointer-events: none; padding: 5px 10px; border-radius: 5px; background: #2b2a27; color: #fffdf9; font-size: 12px; font-weight: 700; line-height: 1.3; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);">{{ ntoTip.text }}</div>
+    </sc-if>
+    <sc-for list="{{ ntoLabels }}" as="nl" hint-placeholder-count="0">
+      <div style="position: absolute; left: {{ nl.left }}; top: {{ nl.top }}; transform: translate(-50%, -50%); z-index: 3; pointer-events: none; font-size: 10px; font-weight: 800; line-height: 1; letter-spacing: 0.2px; color: #fffdf9; background: rgba(120, 22, 18, 0.88); padding: 3px 6px; border-radius: 3px; white-space: nowrap;">{{ nl.label }}</div>
+    </sc-for>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4;">
+      <sc-for list="{{ trafficLines }}" as="tl" hint-placeholder-count="0">
+        <line x1="{{ tl.x1 }}" y1="{{ tl.y1 }}" x2="{{ tl.x2 }}" y2="{{ tl.y2 }}" stroke="#a3312b" stroke-width="{{ tl.w }}" stroke-opacity="0.5" stroke-linecap="round" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"></line>
+      </sc-for>
+    </svg>
+    <sc-for list="{{ trafficMarks }}" as="tm" hint-placeholder-count="0">
+      <div style="position: absolute; left: {{ tm.left }}; top: {{ tm.top }}; width: {{ tm.size }}; height: {{ tm.size }}; transform: translate(-50%, -50%); border-radius: {{ tm.radius }}; clip-path: {{ tm.clip }}; background: {{ tm.bg }}; border: {{ tm.border }} solid {{ tm.bd }}; box-shadow: 0 2px 10px rgba(0,0,0,0.18); pointer-events: none; z-index: 4; display: flex; align-items: center; justify-content: center; padding-top: {{ tm.pad }}; box-sizing: border-box;">
+        <div style="font-size: 11px; font-weight: 700; color: #ffffff;">{{ tm.label }}</div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ activeInfo }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; width: 230px; left: {{ activeInfo.left }}; top: {{ activeInfo.top }}; transform: {{ activeInfo.transform }}; z-index: 5; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); padding: 14px 16px; pointer-events: none; font-family: Georgia, 'Times New Roman', serif;">
+        <div style="font-size: 16px; font-weight: 700; color: {{ accent }}; margin-bottom: 6px;">{{ activeInfo.name }}</div>
+        <sc-if value="{{ activeInfo.rnv }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size: 11px; font-weight: 700; color: {{ accent }}; text-align: right; margin-bottom: 6px;">Дата РНВ: {{ activeInfo.rnv }}</div>
+        </sc-if>
+        <sc-if value="{{ activeInfo.commercial }}" hint-placeholder-val="{{ false }}">{{ activeInfo.commercialLabel }}: {{ activeInfo.commercial }}<br></sc-if>
+        <sc-if value="{{ activeInfo.unitsLabel }}" hint-placeholder-val="{{ false }}">{{ activeInfo.unitsLabel }}: {{ activeInfo.units }}<br></sc-if>
+        <sc-for list="{{ activeInfo.statuses }}" as="line" hint-placeholder-count="2">
+          {{ line }}<br>
+        </sc-for>
+        <sc-if value="{{ activeInfo.noCommercial }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 12px; color: {{ mutedColor }};">Коммерческих помещений нет</span>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+ </div>
+
+ <sc-if value="{{ selectedInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="width: 1080px; flex-shrink: 0; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 20px; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+      <div style="font-size: 18px; font-weight: 700; color: {{ accent }};">{{ selectedInfo.name }}</div>
+      <div style="cursor: pointer; font-size: 18px; color: {{ mutedColor }}; line-height: 1; padding: 2px 4px;" onClick="{{ closePanel }}">×</div>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 18px;">
+      <div style="width: 360px; flex-shrink: 0;">
+    <sc-if value="{{ selectedInfo.rnv }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 12px; font-weight: 700; color: {{ accent }}; margin-bottom: 12px;">Дата РНВ: {{ selectedInfo.rnv }}</div>
+    </sc-if>
+    <sc-if value="{{ selectedInfo.addr }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 13px; color: {{ mutedColor }}; margin-bottom: 12px;">{{ selectedInfo.addr }}</div>
+    </sc-if>
+    <sc-if value="{{ selectedInfo.uk }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 12px; color: {{ mutedColor }}; margin-bottom: 12px;">УК МКД: <span style="color: {{ mutedColor }};">{{ selectedInfo.uk }}</span></div>
+    </sc-if>
+    <sc-if value="{{ selectedInfo.commercial }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 13px; color: {{ mutedColor }}; margin-bottom: 6px;">{{ selectedInfo.commercialLabel }}: {{ selectedInfo.commercial }}<sc-if value="{{ selectedInfo.units }}" hint-placeholder-val="{{ true }}"> ({{ selectedInfo.units }})</sc-if></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+        <sc-for list="{{ selectedInfo.statusChips }}" as="sc" hint-placeholder-count="2">
+          <div style="display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 11px; background: {{ sc.bg }}; color: {{ sc.fg }}; border: 1px solid {{ sc.bd }};"><span style="font-weight: 700;">{{ sc.label }}</span><span>{{ sc.count }} · {{ sc.area }}</span></div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ selectedInfo.planImg }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+          <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">{{ selectedInfo.planLabel }}</div>
+          <sc-if value="{{ planFloorTabs }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; gap: 4px;">
+              <sc-for list="{{ planFloorTabs }}" as="ft" hint-placeholder-count="0">
+                <div style="padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid {{ ft.border }}; background: {{ ft.bg }}; color: {{ ft.color }};" onClick="{{ ft.onClick }}">{{ ft.label }}</div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div style="position: relative;">
+          <div style="position: relative; width: 100%; aspect-ratio: {{ selectedInfo.planAspect }}; border: 1px solid {{ borderColor }}; border-radius: 4px; overflow: hidden; cursor: zoom-in;" onClick="{{ openPlanZoom }}">
+          <div role="img" aria-label="План этажа" style="position: absolute; inset: 0; background: #fff center / contain no-repeat; background-image: url('{{ selectedInfo.planImg }}');"></div>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+            <sc-for list="{{ mopShapes }}" as="mp" hint-placeholder-count="0">
+              <polygon points="{{ mp.points }}" fill="rgba(125,122,114,0.28)" stroke="rgba(95,92,85,0.6)" stroke-width="1.2" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"></polygon>
+            </sc-for>
+            <sc-for list="{{ hoverOutline }}" as="ho" hint-placeholder-count="0">
+              <polygon points="{{ ho.points }}" fill="rgba(163,49,43,0.10)" stroke="#a3312b" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></polygon>
+            </sc-for>
+          </svg>
+          <sc-for list="{{ selectedInfo.highlightBoxes }}" as="hb" hint-placeholder-count="8">
+            <svg viewBox="0 0 24 24" style="position: absolute; left: {{ hb.left }}; top: {{ hb.top }}; width: 32px; height: 32px; transform: translate(-50%, -100%); pointer-events: none; opacity: {{ hb.opacity }}; transition: opacity 0.1s; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));">
+              <path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#ffffff" stroke="#a3312b" stroke-width="1.5"></path>
+              <circle cx="12" cy="10" r="3" fill="#a3312b"></circle>
+            </svg>
+          </sc-for>
+        </div>
+        </div>
+        <div style="font-size: 10px; color: #948f83; margin-top: 4px;">{{ selectedInfo.planNote }}</div>
+      </div>
+    </sc-if>
+          </div>
+      <div style="flex: 1; min-width: 0;">
+<div ref="{{ topScrollRef }}" onScroll="{{ onTopScroll }}" style="overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 4px;"><div style="width: {{ cardsScrollW }}; height: 1px;"></div></div>
+<div ref="{{ cardsScrollRef }}" onScroll="{{ onCardsScroll }}" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; align-items: stretch;">
+      <sc-for list="{{ selectedInfo.unitsUnsold }}" as="u" hint-placeholder-count="8">
+        <div style="position: relative; flex: {{ u.cardFlex }}; min-width: 0; align-self: {{ u.cardAlign }}; overflow: hidden; border: 1px solid {{ borderColor }}; border-radius: 4px; padding: {{ u.cardPad }}; background: {{ u.cardBg }}; cursor: default;" onMouseEnter="{{ u.onEnter }}" onMouseLeave="{{ u.onLeave }}">
+          <sc-if value="{{ u.sold }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom right, transparent calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% + 0.6px), transparent calc(50% + 0.6px)), linear-gradient(to top right, transparent calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% + 0.6px), transparent calc(50% + 0.6px));"></div>
+          </sc-if>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px; line-height: 20px; font-weight: 700; color: {{ u.fg }};">
+            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ u.number }}</div><div style="font-weight: 400; white-space: nowrap; color: {{ u.fgMuted }};">{{ u.area }}</div><div style="font-size: 10px; font-weight: 700; white-space: nowrap; color: {{ u.cornerFg }}; text-align: right;" title="{{ u.cornerTitle }}"><sc-if value="{{ u.ttChipCat }}" hint-placeholder-val="{{ false }}"><div style="display: inline-flex; align-items: center; gap: 5px; max-width: 160px; padding: 2px 8px 2px 6px; margin-bottom: 4px; border-radius: 999px; background: {{ u.ttChipBg }}; border: 1px solid {{ u.ttChipBd }};" title="{{ u.ttChipCat }}"><div style="width: 7px; height: 7px; border-radius: 50%; background: {{ u.ttChipColor }}; flex-shrink: 0;"></div><div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.2px; color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ u.ttChipCat }}</div></div></sc-if><div style="font-size: 8.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; opacity: 0.75;">{{ u.cornerCaption }}</div>{{ u.corner }}</div>
+          </div>
+          <div style="display: inline-block; margin: {{ u.chipMargin }}; padding: 4px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; background: {{ u.chipBg }}; color: {{ u.chipFg }}; border: 1px solid {{ u.chipBd }};">{{ u.status }}</div><sc-if value="{{ u.donutsShow }}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin-top: 6px; width: 100%;"><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d1Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d1Color }} {{ u.d1Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d1Color }};">{{ u.d1Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">общая доходность вложений</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d3Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d3Color }} {{ u.d3Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d3Color }};">{{ u.d3Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">YoC</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d5Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d5Color }} {{ u.d5Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d5Color }};">{{ u.d5Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">полная доходность актива</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d4Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d4Color }} {{ u.d4Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d4Color }};">{{ u.d4Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">cap rate</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d2Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d2Color }} {{ u.d2Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d2Color }};">{{ u.d2Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">возвращён opex</span></span></span></sc-if>
+          <sc-if value="{{ u.rentMarket }}" hint-placeholder-val="{{ false }}">
+            <div style="display: inline-flex; align-items: baseline; gap: 3px; padding: 0 5px; margin: 0 0 3px; border-radius: 999px; background: rgba(43,74,140,0.06); border: 1px solid rgba(43,74,140,0.18);" title="Актуальная на текущий год рыночная ставка аренды — медиана действующих ставок по ЖК"><span style="font-size: 6.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: #2b4a8c;">рынок</span><span style="font-size: 8.5px; font-weight: 700; color: #2b4a8c; white-space: nowrap;">{{ u.rentMarket }}</span></div>
+          </sc-if>
+          <div style="display: grid; grid-template-columns: minmax(0, 88px) minmax(0, 1fr); gap: {{ u.rowGap }} 10px; font-size: {{ u.rowFont }}; line-height: {{ u.rowLine }};">
+            <div style="color: {{ u.fgMuted }};">{{ u.btiLabelOrDefault }}</div><div style="color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.btiOrDash }}">{{ u.btiOrDash }}</div>
+            <sc-if value="{{ u.fias }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ u.fgMuted }};">ФИАС</div><div style="color: {{ u.fg }};">{{ u.fias }}</div>
+            </sc-if>
+            <div style="color: {{ u.fgMuted }};">{{ u.cadLabel }}</div><div style="color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.cadValue }}">{{ u.cadValue }}</div>
+            <sc-if value="{{ u.ntoZu }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ mutedColor }};">Стоимость по ДКП</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.ntoPrice }}</div>
+              <div style="color: {{ mutedColor }};">Правообладатель</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.ntoOwner }}</div>
+            </sc-if>
+            <sc-if value="{{ u.sold }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ u.fgMuted }};">Категория актуальной т.т.</div><div style="color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.ttCat }}">{{ u.ttCat }}</div>
+            </sc-if>
+            <sc-if value="{{ u.sold }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ u.fgMuted }};">Дата продажи</div><div style="color: {{ u.fg }}; white-space: nowrap;">{{ u.saleDate }}</div>
+              <div style="color: {{ u.fgMuted }};">Факт. стоимость</div><div style="color: {{ u.fg }}; white-space: nowrap;">{{ u.saleFact }}</div>
+              <div style="color: {{ u.fgMuted }};">Выплата агенту</div><div style="color: {{ u.fg }}; white-space: nowrap;">{{ u.saleAgent }}</div>
+              <div style="color: {{ u.fgMuted }};">Покупатель</div><div style="color: {{ u.fg }}; overflow-wrap: anywhere;">{{ u.saleBuyer }}</div>
+              <div style="color: {{ u.fgMuted }};">Годовой прирост</div><div style="color: {{ u.cornerFg }}; overflow-wrap: anywhere;">{{ u.saleGrowth }}</div>
+            </sc-if>
+            <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ true }}">
+            <div style="color: {{ mutedColor }};">{{ u.marketLabel }}</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.marketTitle }}">{{ u.marketPrice }}</div>
+            <div style="color: {{ mutedColor }};">{{ u.role }}</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.companyOrDash }}">{{ u.companyOrDash }}</div>
+            <div style="color: {{ mutedColor }};">Страхование</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.insurance }}">{{ u.insurance }}</div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;">Договор аренды</div>
+          <div style="display: grid; grid-template-columns: minmax(0, 118px) minmax(0, 1fr); gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px;">
+            <div style="color: {{ mutedColor }};">Т.Т.</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.ttName }}</div>
+            <div style="color: {{ mutedColor }};">Ставка</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRate }}</div>
+            <div style="color: {{ mutedColor }};">Арендатор</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regTenant }}</div>
+            <div style="color: {{ mutedColor }};">Дата договора</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regDog }}</div>
+            <div style="color: {{ mutedColor }};">Дата окончания договора</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regTill }}</div>
+            <div style="color: {{ mutedColor }};">Период ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRatePeriod }}</div>
+            <div style="color: {{ mutedColor }};">Дата очередного изменения ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRateNextChange }}</div>
+            <div style="color: {{ mutedColor }};">Ставка ранее</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRatePrev }}</div>
+            <div style="color: {{ mutedColor }};">Период прошлой ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRatePrevPeriod }}</div>
+            <div style="color: {{ mutedColor }};">Активация</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regContract }}</div>
+            <div style="color: {{ mutedColor }};">Стартовые каникулы</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regHoliday }}</div>
+            <div style="color: {{ mutedColor }};">Индексация</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regIndexation }}</div>
+            <div style="color: {{ mutedColor }};">Дата очередной индексации</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regIndexDate }}</div>
+            <div style="color: {{ mutedColor }};">Товарооборот</div>
+            <div style="display: flex; gap: 3px;">
+              <sc-for list="{{ u.turnoverMonths }}" as="tm" hint-placeholder-count="12">
+                <div onClick="{{ tm.onClick }}" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 3px; font-size: 10px; cursor: pointer; background: {{ tm.bg }}; color: {{ tm.fg }}; font-weight: {{ tm.fw }};">{{ tm.m }}</div>
+              </sc-for>
+            </div>
+            <div></div><div style="color: {{ textColor }}; font-weight: 600; overflow-wrap: anywhere;">{{ u.turnoverValue }}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.togglePast }}"><span>Бывшие арендаторы</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevPast }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openPast }}" hint-placeholder-val="{{ false }}">
+          <sc-for list="{{ u.pastRows }}" as="pt" hint-placeholder-count="1">
+            <div style="display: grid; grid-template-columns: minmax(0, 118px) minmax(0, 1fr); gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px;">
+              <div style="color: {{ mutedColor }};">Арендатор</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ pt.tenant }}</div>
+              <div style="color: {{ mutedColor }};">Фактическая ставка в периоде</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ pt.rate }}</div>
+              <div style="color: {{ mutedColor }};">Период ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ pt.period }}</div>
+            </div>
+          </sc-for>
+            </sc-if>
+          <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.toggleMgmt }}"><span>Управление и платежи</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevMgmt }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openMgmt }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: minmax(0, 88px) minmax(0, 1fr); gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px;">
+              <div style="color: {{ mutedColor }};">Управление</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.mgmtCo }}">{{ u.mgmtCo }}</div>
+              <div style="color: {{ mutedColor }};">Ставка</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.mgmtRate }}">{{ u.mgmtRate }}</div>
+              <div style="color: {{ mutedColor }};">Активация</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.mgmtActive }}">{{ u.mgmtActive }}</div>
+              <div style="color: {{ mutedColor }};">Простой при смене арендатора</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.idleOnChange }}</div>
+            </div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 5px; color: {{ mutedColor }};">
+              <div>Плата за управление с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.mgmtPaid }}</div>
+              <div>Скидки за управление с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.mgmtDiscount }}</div>
+              <div>Плата за аренду с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.rentPaid }}</div>
+              <div>Скидки по аренде с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.rentDiscount }}</div>
+              <div>Долг за аренду на отчетную дату</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.rentDebt }}</div>
+              <div>Долг за управление на отчетную дату</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.mgmtDebt }}</div>
+              <div>Взысканы неустойки с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.penalties }}</div>
+            </div>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.toggleCapex }}"><span>CAPEX с начала года</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevCapex }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openCapex }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 10.5px; line-height: 14px; color: #9a6b1a; margin-top: 2px;">возмещаемые затраты обнуляются</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px; color: {{ mutedColor }};">
+              <div style="display: flex; align-items: center; gap: 6px; cursor: pointer;" onClick="{{ u.toggleUtil }}"><span>Коммунальные услуги</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.utilChevron }}; transition: transform 0.15s;">▾</span></div><div style="color: {{ u.cxUtilC }}; white-space: nowrap;">{{ u.cxUtil }}</div>
+              <sc-if value="{{ u.utilOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата {{ u.ukLabel }}</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilMkd }}</div>
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата за электричество</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilElec }}</div>
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата за воду</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilWater }}</div>
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата за тепло</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilHeat }}</div>
+              </sc-if>
+              <div>Охрана</div><div style="color: {{ u.cxSecurityC }}; white-space: nowrap;">{{ u.cxSecurity }}</div>
+              <div>Клининг</div><div style="color: {{ u.cxCleaningC }}; white-space: nowrap;">{{ u.cxCleaning }}</div>
+              <div>ТО (лифт, вентиляция, кондиционирование, пожарная сигнализация, сантехника)</div><div style="color: {{ u.cxTOC }}; white-space: nowrap;">{{ u.cxTO }}</div>
+              <div>АХР управления</div><div style="color: {{ u.cxAdminC }}; white-space: nowrap;">{{ u.cxAdmin }}</div>
+              <div>Налоги (на имущество и землю)</div><div style="color: {{ u.cxTaxesC }}; white-space: nowrap;">{{ u.cxTaxes }}</div>
+              <div>Страхование</div><div style="color: {{ u.cxInsuranceC }}; white-space: nowrap;">{{ u.cxInsurance }}</div>
+              <div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }};">Итого</div><div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxTotal }}</div>
+            </div>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.toggleOpex }}"><span>OPEX</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevOpex }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openOpex }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 10.5px; line-height: 14px; color: #9a6b1a; margin-top: 2px;">накопительно</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px; color: {{ mutedColor }};">
+              <div>Стартовые вложения</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opStart }}</div>
+              <div>Капитальный ремонт</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opRepair }}</div>
+              <div>Ремонт под требования якорного арендатора</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opAnchor }}</div>
+              <div>Операционный убыток прошлых лет</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opLoss }}</div>
+              <div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }};">Итого</div><div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }}; white-space: nowrap;">{{ u.opTotal }}</div>
+            </div>
+            </sc-if>
+            <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;">Эффективность</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px; color: {{ mutedColor }};">
+              <div style="font-weight: 700; color: {{ textColor }};">Операционная прибыль (NOI)</div><div style="font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ u.effNoi }}</div>
+              <div>Простая окупаемость</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effPayback }}</div>
+              <div>Доходность на вложения (YoC)</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effRoi }}</div>
+              <div title="NOI в годовом выражении к актуальной (рыночной) цене помещения">Cap rate</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effCapRate }}</div>
+              <div>Норматив общей доходности вложений</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effCap }}</div>
+              <div style="font-weight: 700; color: {{ textColor }};">Возвращённый OPEX</div><div style="font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ u.effOpexBack }}</div>
+              <div style="grid-column: 1 / -1; font-size: 10.5px; line-height: 14px; color: #9a6b1a;">накопительно</div>
+              <div style="font-weight: 700; color: {{ textColor }};">Прирост цены актива</div><div style="font-weight: 700; color: {{ u.effGrowthC }}; white-space: nowrap;">{{ u.effGrowth }}</div>
+              <div style="font-weight: 700; color: {{ textColor }};">Прирост цены в среднем в год</div><div style="font-weight: 700; color: {{ u.effGrowthC }}; white-space: nowrap;">{{ u.effGrowthYear }}</div>
+              <div style="grid-column: 1 / -1; border-top: 1px solid {{ borderColor }}; margin-top: 6px;"></div>
+              <div style="font-size: 14px; font-weight: 800; color: {{ textColor }}; padding-top: 4px;">Опережение норматива общей доходности вложений</div><div style="font-size: 14px; font-weight: 800; color: {{ u.effSpreadC }}; white-space: nowrap; padding-top: 4px;">{{ u.effSpread }}</div>
+              <div title="Среднегодовой прирост цены с даты РНВ, приложенный к текущему году">Ожидаемая динамика цены актива за текущий год</div><div style="color: {{ u.effPriceDynC }}; white-space: nowrap;">{{ u.effPriceDyn }}</div>
+              <div style="font-size: 14px; font-weight: 800; color: {{ textColor }}; padding-top: 4px;" title="{{ u.effFullTitle }}">Полная доходность актива</div><div style="font-size: 14px; font-weight: 800; color: {{ u.effFullC }}; white-space: nowrap; padding-top: 4px;" title="{{ u.effFullTitle }}">{{ u.effFull }}</div>
+              <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {{ u.fairBorder }}; font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: {{ u.fgMuted }}; display: flex; align-items: center;" title="{{ u.effFairTitle }}"><span>Справедливая стоимость<br>не менее</span></div><div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {{ u.fairBorder }}; font-size: 17px; font-weight: 800; letter-spacing: -0.2px; color: {{ u.fairColor }}; white-space: nowrap; display: flex; align-items: center;" title="{{ u.effFairTitle }}">{{ u.effFair }}</div>
+            </div>
+          </sc-if>
+          </sc-if>
+        </div>
+      </sc-for>
+      </div>
+      <sc-if value="{{ selectedInfo.unitsSold }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; align-items: flex-start;">
+      <sc-for list="{{ selectedInfo.unitsSold }}" as="u" hint-placeholder-count="8">
+        <div style="position: relative; flex: {{ u.cardFlex }}; min-width: 0; align-self: {{ u.cardAlign }}; overflow: hidden; border: 1px solid {{ borderColor }}; border-radius: 4px; padding: {{ u.cardPad }}; background: {{ u.cardBg }}; cursor: default;" onMouseEnter="{{ u.onEnter }}" onMouseLeave="{{ u.onLeave }}">
+          <sc-if value="{{ u.sold }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom right, transparent calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% + 0.6px), transparent calc(50% + 0.6px)), linear-gradient(to top right, transparent calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% - 0.6px), rgba(224,147,141,0.5) calc(50% + 0.6px), transparent calc(50% + 0.6px));"></div>
+          </sc-if>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px; line-height: 20px; font-weight: 700; color: {{ u.fg }};">
+            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ u.number }}</div><div style="font-weight: 400; white-space: nowrap; color: {{ u.fgMuted }};">{{ u.area }}</div><div style="font-size: 10px; font-weight: 700; white-space: nowrap; color: {{ u.cornerFg }}; text-align: right;" title="{{ u.cornerTitle }}"><sc-if value="{{ u.ttChipCat }}" hint-placeholder-val="{{ false }}"><div style="display: inline-flex; align-items: center; gap: 5px; max-width: 160px; padding: 2px 8px 2px 6px; margin-bottom: 4px; border-radius: 999px; background: {{ u.ttChipBg }}; border: 1px solid {{ u.ttChipBd }};" title="{{ u.ttChipCat }}"><div style="width: 7px; height: 7px; border-radius: 50%; background: {{ u.ttChipColor }}; flex-shrink: 0;"></div><div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.2px; color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ u.ttChipCat }}</div></div></sc-if><div style="font-size: 8.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; opacity: 0.75;">{{ u.cornerCaption }}</div>{{ u.corner }}</div>
+          </div>
+          <div style="display: inline-block; margin: {{ u.chipMargin }}; padding: 4px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; background: {{ u.chipBg }}; color: {{ u.chipFg }}; border: 1px solid {{ u.chipBd }};">{{ u.status }}</div><sc-if value="{{ u.donutsShow }}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin-top: 6px; width: 100%;"><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d1Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d1Color }} {{ u.d1Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d1Color }};">{{ u.d1Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">общая доходность вложений</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d3Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d3Color }} {{ u.d3Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d3Color }};">{{ u.d3Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">YoC</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d5Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d5Color }} {{ u.d5Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d5Color }};">{{ u.d5Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">полная доходность актива</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d4Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d4Color }} {{ u.d4Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d4Color }};">{{ u.d4Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">cap rate</span></span><span style="display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="{{ u.d2Title }}"><span style="position: relative; display: inline-block; width: 34px; height: 34px; border-radius: 50%; background: conic-gradient({{ u.d2Color }} {{ u.d2Deg }}, rgba(0,0,0,0.08) 0);"><span style="position: absolute; inset: 4px; border-radius: 50%; background: {{ cardBg }}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: {{ u.d2Color }};">{{ u.d2Val }}</span></span><span style="max-width: 52px; font-size: 7.5px; font-weight: 700; line-height: 10px; letter-spacing: 0.2px; text-transform: uppercase; text-align: center; color: {{ u.fgMuted }};">возвращён opex</span></span></span></sc-if>
+          <sc-if value="{{ u.rentMarket }}" hint-placeholder-val="{{ false }}">
+            <div style="display: inline-flex; align-items: baseline; gap: 3px; padding: 0 5px; margin: 0 0 3px; border-radius: 999px; background: rgba(43,74,140,0.06); border: 1px solid rgba(43,74,140,0.18);" title="Актуальная на текущий год рыночная ставка аренды — медиана действующих ставок по ЖК"><span style="font-size: 6.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: #2b4a8c;">рынок</span><span style="font-size: 8.5px; font-weight: 700; color: #2b4a8c; white-space: nowrap;">{{ u.rentMarket }}</span></div>
+          </sc-if>
+          <div style="display: grid; grid-template-columns: minmax(0, 88px) minmax(0, 1fr); gap: {{ u.rowGap }} 10px; font-size: {{ u.rowFont }}; line-height: {{ u.rowLine }};">
+            <div style="color: {{ u.fgMuted }};">{{ u.btiLabelOrDefault }}</div><div style="color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.btiOrDash }}">{{ u.btiOrDash }}</div>
+            <sc-if value="{{ u.fias }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ u.fgMuted }};">ФИАС</div><div style="color: {{ u.fg }};">{{ u.fias }}</div>
+            </sc-if>
+            <div style="color: {{ u.fgMuted }};">{{ u.cadLabel }}</div><div style="color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.cadValue }}">{{ u.cadValue }}</div>
+            <sc-if value="{{ u.ntoZu }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ mutedColor }};">Стоимость по ДКП</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.ntoPrice }}</div>
+              <div style="color: {{ mutedColor }};">Правообладатель</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.ntoOwner }}</div>
+            </sc-if>
+            <sc-if value="{{ u.sold }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ u.fgMuted }};">Категория актуальной т.т.</div><div style="color: {{ u.fg }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.ttCat }}">{{ u.ttCat }}</div>
+            </sc-if>
+            <sc-if value="{{ u.sold }}" hint-placeholder-val="{{ false }}">
+              <div style="color: {{ u.fgMuted }};">Дата продажи</div><div style="color: {{ u.fg }}; white-space: nowrap;">{{ u.saleDate }}</div>
+              <div style="color: {{ u.fgMuted }};">Факт. стоимость</div><div style="color: {{ u.fg }}; white-space: nowrap;">{{ u.saleFact }}</div>
+              <div style="color: {{ u.fgMuted }};">Выплата агенту</div><div style="color: {{ u.fg }}; white-space: nowrap;">{{ u.saleAgent }}</div>
+              <div style="color: {{ u.fgMuted }};">Покупатель</div><div style="color: {{ u.fg }}; overflow-wrap: anywhere;">{{ u.saleBuyer }}</div>
+              <div style="color: {{ u.fgMuted }};">Годовой прирост</div><div style="color: {{ u.cornerFg }}; overflow-wrap: anywhere;">{{ u.saleGrowth }}</div>
+            </sc-if>
+            <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ true }}">
+            <div style="color: {{ mutedColor }};">{{ u.marketLabel }}</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.marketTitle }}">{{ u.marketPrice }}</div>
+            <div style="color: {{ mutedColor }};">{{ u.role }}</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.companyOrDash }}">{{ u.companyOrDash }}</div>
+            <div style="color: {{ mutedColor }};">Страхование</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.insurance }}">{{ u.insurance }}</div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;">Договор аренды</div>
+          <div style="display: grid; grid-template-columns: minmax(0, 118px) minmax(0, 1fr); gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px;">
+            <div style="color: {{ mutedColor }};">Т.Т.</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.ttName }}</div>
+            <div style="color: {{ mutedColor }};">Ставка</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRate }}</div>
+            <div style="color: {{ mutedColor }};">Арендатор</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regTenant }}</div>
+            <div style="color: {{ mutedColor }};">Дата договора</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regDog }}</div>
+            <div style="color: {{ mutedColor }};">Дата окончания договора</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regTill }}</div>
+            <div style="color: {{ mutedColor }};">Период ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRatePeriod }}</div>
+            <div style="color: {{ mutedColor }};">Дата очередного изменения ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRateNextChange }}</div>
+            <div style="color: {{ mutedColor }};">Ставка ранее</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRatePrev }}</div>
+            <div style="color: {{ mutedColor }};">Период прошлой ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regRatePrevPeriod }}</div>
+            <div style="color: {{ mutedColor }};">Активация</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regContract }}</div>
+            <div style="color: {{ mutedColor }};">Стартовые каникулы</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regHoliday }}</div>
+            <div style="color: {{ mutedColor }};">Индексация</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regIndexation }}</div>
+            <div style="color: {{ mutedColor }};">Дата очередной индексации</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.regIndexDate }}</div>
+            <div style="color: {{ mutedColor }};">Товарооборот</div>
+            <div style="display: flex; gap: 3px;">
+              <sc-for list="{{ u.turnoverMonths }}" as="tm" hint-placeholder-count="12">
+                <div onClick="{{ tm.onClick }}" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 3px; font-size: 10px; cursor: pointer; background: {{ tm.bg }}; color: {{ tm.fg }}; font-weight: {{ tm.fw }};">{{ tm.m }}</div>
+              </sc-for>
+            </div>
+            <div></div><div style="color: {{ textColor }}; font-weight: 600; overflow-wrap: anywhere;">{{ u.turnoverValue }}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.togglePast }}"><span>Бывшие арендаторы</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevPast }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openPast }}" hint-placeholder-val="{{ false }}">
+          <sc-for list="{{ u.pastRows }}" as="pt" hint-placeholder-count="1">
+            <div style="display: grid; grid-template-columns: minmax(0, 118px) minmax(0, 1fr); gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px;">
+              <div style="color: {{ mutedColor }};">Арендатор</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ pt.tenant }}</div>
+              <div style="color: {{ mutedColor }};">Фактическая ставка в периоде</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ pt.rate }}</div>
+              <div style="color: {{ mutedColor }};">Период ставки</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ pt.period }}</div>
+            </div>
+          </sc-for>
+            </sc-if>
+          <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.toggleMgmt }}"><span>Управление и платежи</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevMgmt }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openMgmt }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: minmax(0, 88px) minmax(0, 1fr); gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px;">
+              <div style="color: {{ mutedColor }};">Управление</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.mgmtCo }}">{{ u.mgmtCo }}</div>
+              <div style="color: {{ mutedColor }};">Ставка</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.mgmtRate }}">{{ u.mgmtRate }}</div>
+              <div style="color: {{ mutedColor }};">Активация</div><div style="color: {{ textColor }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" style-hover="white-space: normal; overflow-wrap: anywhere;" title="{{ u.mgmtActive }}">{{ u.mgmtActive }}</div>
+              <div style="color: {{ mutedColor }};">Простой при смене арендатора</div><div style="color: {{ textColor }}; overflow-wrap: anywhere;">{{ u.idleOnChange }}</div>
+            </div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 5px; color: {{ mutedColor }};">
+              <div>Плата за управление с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.mgmtPaid }}</div>
+              <div>Скидки за управление с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.mgmtDiscount }}</div>
+              <div>Плата за аренду с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.rentPaid }}</div>
+              <div>Скидки по аренде с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.rentDiscount }}</div>
+              <div>Долг за аренду на отчетную дату</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.rentDebt }}</div>
+              <div>Долг за управление на отчетную дату</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.mgmtDebt }}</div>
+              <div>Взысканы неустойки с начала года</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.penalties }}</div>
+            </div>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.toggleCapex }}"><span>CAPEX с начала года</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevCapex }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openCapex }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 10.5px; line-height: 14px; color: #9a6b1a; margin-top: 2px;">возмещаемые затраты обнуляются</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px; color: {{ mutedColor }};">
+              <div style="display: flex; align-items: center; gap: 6px; cursor: pointer;" onClick="{{ u.toggleUtil }}"><span>Коммунальные услуги</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.utilChevron }}; transition: transform 0.15s;">▾</span></div><div style="color: {{ u.cxUtilC }}; white-space: nowrap;">{{ u.cxUtil }}</div>
+              <sc-if value="{{ u.utilOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата {{ u.ukLabel }}</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilMkd }}</div>
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата за электричество</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilElec }}</div>
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата за воду</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilWater }}</div>
+                <div style="padding-left: 12px; font-size: 11px; color: {{ mutedColor }};">Плата за тепло</div><div style="font-size: 11px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxUtilHeat }}</div>
+              </sc-if>
+              <div>Охрана</div><div style="color: {{ u.cxSecurityC }}; white-space: nowrap;">{{ u.cxSecurity }}</div>
+              <div>Клининг</div><div style="color: {{ u.cxCleaningC }}; white-space: nowrap;">{{ u.cxCleaning }}</div>
+              <div>ТО (лифт, вентиляция, кондиционирование, пожарная сигнализация, сантехника)</div><div style="color: {{ u.cxTOC }}; white-space: nowrap;">{{ u.cxTO }}</div>
+              <div>АХР управления</div><div style="color: {{ u.cxAdminC }}; white-space: nowrap;">{{ u.cxAdmin }}</div>
+              <div>Налоги (на имущество и землю)</div><div style="color: {{ u.cxTaxesC }}; white-space: nowrap;">{{ u.cxTaxes }}</div>
+              <div>Страхование</div><div style="color: {{ u.cxInsuranceC }}; white-space: nowrap;">{{ u.cxInsurance }}</div>
+              <div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }};">Итого</div><div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }}; white-space: nowrap;">{{ u.cxTotal }}</div>
+            </div>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;" onClick="{{ u.toggleOpex }}"><span>OPEX</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 3px; background: rgba(0,0,0,0.06); font-size: 9px; line-height: 1; transform: {{ u.chevOpex }}; transition: transform 0.15s;">▾</span></div>
+            <sc-if value="{{ u.openOpex }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 10.5px; line-height: 14px; color: #9a6b1a; margin-top: 2px;">накопительно</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px; color: {{ mutedColor }};">
+              <div>Стартовые вложения</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opStart }}</div>
+              <div>Капитальный ремонт</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opRepair }}</div>
+              <div>Ремонт под требования якорного арендатора</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opAnchor }}</div>
+              <div>Операционный убыток прошлых лет</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.opLoss }}</div>
+              <div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }};">Итого</div><div style="border-top: 1px solid {{ borderColor }}; padding-top: 3px; margin-top: 2px; color: {{ textColor }}; white-space: nowrap;">{{ u.opTotal }}</div>
+            </div>
+            </sc-if>
+            <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: {{ textColor }}; border-top: 1px solid {{ borderColor }}; padding-top: 6px; margin-top: 8px;">Эффективность</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 11.5px; line-height: 16px; margin-top: 4px; color: {{ mutedColor }};">
+              <div style="font-weight: 700; color: {{ textColor }};">Операционная прибыль (NOI)</div><div style="font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ u.effNoi }}</div>
+              <div>Простая окупаемость</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effPayback }}</div>
+              <div>Доходность на вложения (YoC)</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effRoi }}</div>
+              <div title="NOI в годовом выражении к актуальной (рыночной) цене помещения">Cap rate</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effCapRate }}</div>
+              <div>Норматив общей доходности вложений</div><div style="color: {{ textColor }}; white-space: nowrap;">{{ u.effCap }}</div>
+              <div style="font-weight: 700; color: {{ textColor }};">Возвращённый OPEX</div><div style="font-weight: 700; color: {{ textColor }}; white-space: nowrap;">{{ u.effOpexBack }}</div>
+              <div style="grid-column: 1 / -1; font-size: 10.5px; line-height: 14px; color: #9a6b1a;">накопительно</div>
+              <div style="font-weight: 700; color: {{ textColor }};">Прирост цены актива</div><div style="font-weight: 700; color: {{ u.effGrowthC }}; white-space: nowrap;">{{ u.effGrowth }}</div>
+              <div style="font-weight: 700; color: {{ textColor }};">Прирост цены в среднем в год</div><div style="font-weight: 700; color: {{ u.effGrowthC }}; white-space: nowrap;">{{ u.effGrowthYear }}</div>
+              <div style="grid-column: 1 / -1; border-top: 1px solid {{ borderColor }}; margin-top: 6px;"></div>
+              <div style="font-size: 14px; font-weight: 800; color: {{ textColor }}; padding-top: 4px;">Опережение норматива общей доходности вложений</div><div style="font-size: 14px; font-weight: 800; color: {{ u.effSpreadC }}; white-space: nowrap; padding-top: 4px;">{{ u.effSpread }}</div>
+              <div title="Среднегодовой прирост цены с даты РНВ, приложенный к текущему году">Ожидаемая динамика цены актива за текущий год</div><div style="color: {{ u.effPriceDynC }}; white-space: nowrap;">{{ u.effPriceDyn }}</div>
+              <div style="font-size: 14px; font-weight: 800; color: {{ textColor }}; padding-top: 4px;" title="{{ u.effFullTitle }}">Полная доходность актива</div><div style="font-size: 14px; font-weight: 800; color: {{ u.effFullC }}; white-space: nowrap; padding-top: 4px;" title="{{ u.effFullTitle }}">{{ u.effFull }}</div>
+              <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {{ u.fairBorder }}; font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: {{ u.fgMuted }}; display: flex; align-items: center;" title="{{ u.effFairTitle }}"><span>Справедливая стоимость<br>не менее</span></div><div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {{ u.fairBorder }}; font-size: 17px; font-weight: 800; letter-spacing: -0.2px; color: {{ u.fairColor }}; white-space: nowrap; display: flex; align-items: center;" title="{{ u.effFairTitle }}">{{ u.effFair }}</div>
+            </div>
+          </sc-if>
+          </sc-if>
+        </div>
+      </sc-for>
+      </div>
+      </sc-if>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid {{ borderColor }}; font-size: 11px; color: {{ mutedColor }};">
+      <div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;">Ликвидность</div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #dcdcf7; flex-shrink: 0;"></span>Ликвидное</div>
+      <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #f0e6e6; flex-shrink: 0;"></span>Неликвидное</div>
+    </div>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ planZoomImg }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; z-index: 100; background: rgba(20,18,14,0.75); display: flex; align-items: center; justify-content: center; padding: 32px; cursor: zoom-out;" onClick="{{ closePlanZoom }}">
+    <div style="position: relative; cursor: default;" onClick="{{ stopProp }}">
+      <div style="position: relative; width: {{ planZoomW }}; aspect-ratio: {{ planZoomAspect }}; border-radius: 6px; box-shadow: 0 12px 48px rgba(0,0,0,0.5); overflow: hidden;">
+      <div role="img" aria-label="План этажа" style="position: absolute; inset: 0; background: #fff center / contain no-repeat; background-image: url('{{ planZoomImg }}');"></div>
+      <sc-for list="{{ zoomHoverZones }}" as="z" hint-placeholder-count="8">
+        <div style="position: absolute; left: {{ z.left }}; top: {{ z.top }}; width: {{ z.w }}; height: {{ z.h }}; cursor: pointer;" onMouseEnter="{{ z.onHover }}" onMouseLeave="{{ z.onUnhover }}"></div>
+      </sc-for>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+        <sc-for list="{{ mopShapes }}" as="mp" hint-placeholder-count="0">
+          <polygon points="{{ mp.points }}" fill="rgba(125,122,114,0.28)" stroke="rgba(95,92,85,0.6)" stroke-width="1.2" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"></polygon>
+        </sc-for>
+        <sc-for list="{{ zoomOutline }}" as="ho" hint-placeholder-count="0">
+          <polygon points="{{ ho.points }}" fill="rgba(163,49,43,0.10)" stroke="#a3312b" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"></polygon>
+        </sc-for>
+      </svg>
+      <sc-for list="{{ zoomPins }}" as="hb" hint-placeholder-count="8">
+        <svg viewBox="0 0 24 24" style="position: absolute; left: {{ hb.left }}; top: {{ hb.top }}; width: 40px; height: 40px; transform: translate(-50%, -100%); pointer-events: none; opacity: {{ hb.opacity }}; transition: opacity 0.1s; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));">
+          <path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#ffffff" stroke="#a3312b" stroke-width="1.5"></path>
+          <circle cx="12" cy="10" r="3" fill="#a3312b"></circle>
+        </svg>
+      </sc-for>
+      <sc-if value="{{ zoomTooltip }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; left: {{ zoomTooltip.left }}; top: {{ zoomTooltip.top }}; transform: {{ zoomTooltip.tf }}; margin-top: {{ zoomTooltip.mt }}; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 10px 14px; min-width: 180px; pointer-events: none; z-index: 2;">
+          <div style="font-weight: 700; font-size: 13px; color: {{ textColor }};">{{ zoomTooltip.number }} · {{ zoomTooltip.area }}</div>
+          <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ zoomTooltip.status }}</div>
+          <sc-if value="{{ zoomTooltip.company }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ zoomTooltip.company }}</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+    </div>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ summaryFilterInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="width: 340px; flex-shrink: 0; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 20px; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <div style="font-size: 18px; font-weight: 700; color: {{ accent }};">{{ summaryFilterInfo.label }}</div>
+      <div style="cursor: pointer; font-size: 18px; color: {{ mutedColor }}; line-height: 1; padding: 2px 4px;" onClick="{{ closeSummaryFilter }}">×</div>
+    </div>
+    <sc-if value="{{ summaryFilterInfo.showFlow }}" hint-placeholder-val="{{ false }}">
+      <div style="border: 1px solid {{ borderColor }}; border-radius: 4px; padding: 10px 12px; margin-bottom: 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px;">
+        <div style="font-size: 11.5px; font-weight: 700; color: {{ textColor }};">Максимальный арендный поток</div><div style="font-size: 12.5px; font-weight: 800; color: {{ textColor }}; white-space: nowrap;">{{ summaryFilterInfo.maxFlow }}</div>
+        <div style="grid-column: 1 / -1; font-size: 10px; line-height: 13px; color: {{ mutedColor }}; margin-bottom: 4px;">{{ summaryFilterInfo.maxFlowNote }}</div>
+        <div style="font-size: 11.5px; font-weight: 700; color: {{ textColor }};">Экономическая эффективность</div><div style="font-size: 12.5px; font-weight: 800; color: {{ summaryFilterInfo.econEffColor }}; white-space: nowrap;">{{ summaryFilterInfo.econEff }}</div>
+        <div style="grid-column: 1 / -1; font-size: 10px; line-height: 13px; color: {{ mutedColor }};">{{ summaryFilterInfo.econEffNote }}</div>
+      </div>
+    </sc-if>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ summaryFilterInfo.list }}" as="u" hint-placeholder-count="6">
+        <div style="border: 1px solid {{ borderColor }}; border-radius: 4px; padding: 10px 12px; background: {{ u.liqColor }};">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-weight: 700; color: {{ textColor }}; text-decoration: {{ u.strike }};">
+            <div>{{ u.number }}</div><div style="font-weight: 400; color: {{ mutedColor }};">{{ u.area }}</div>
+          </div>
+          <div style="font-size: 12px; color: {{ mutedColor }}; margin: 2px 0 4px;">{{ u.location }}</div>
+          <div style="color: {{ textColor }}; text-decoration: {{ u.strike }};">{{ u.status }}</div>
+          <div style="font-size: 12px; color: {{ mutedColor }}; margin-top: 2px;">Цена по прайсу: {{ u.price }}</div>
+          <sc-if value="{{ u.company }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11.5px; color: #8e877b; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ u.role }}: {{ u.company }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+ </sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;light&quot;, &quot;tsType&quot;: &quot;'light' | 'dark'&quot;, &quot;options&quot;: [&quot;light&quot;, &quot;dark&quot;]}}">
+// ЖК «Самолёт 2»: данные очереди и отличия от общего ядра (genplan_core.js)
+class Component extends window.GenplanCore(DCLogic) {
+  state = { hovered: null, selected: null, summaryHovered: false, summaryPinned: false, summaryFilter: null, problemsVisible: false, efficiencyVisible: false };
+
+  // Планы 1 этажа из техпаспортов (лист 8); кроп по подъезду (БТИ: л3 п.1 259–274, п.2 275–292, п.3 293–312; литер 4 зеркален: п.1 92–111, п.2 297–319, п.3 508–528)
+  floorPlans = {
+    'wash': { img: 'assets/wash_floor1.png', ratio: 1450 / 200 },
+    // литер 9 (ген.) = внутр. ключ 1_x; БТИ: п.1 256–273, п.2 274–291, п.3 292–307
+    '1_3': { img: 'assets/liter9_s2_p3.png', ratio: 442 / 1108 },
+    '1_2': { img: 'assets/liter9_s2_p2.png', ratio: 930 / 758 },
+    '1_1': { img: 'assets/liter9_s2_p1.png', ratio: 890 / 738 },
+    // литер 10 (ген.) = внутр. ключ 2_x; БТИ: п.1 81–101, п.2 240–262, п.3 458–480
+    '2_1': { img: 'assets/liter10_s2_p1.png', ratio: 424 / 1088 },
+    '2_2': { img: 'assets/liter10_s2_p2.png', ratio: 916 / 684 },
+    '2_3': { img: 'assets/liter10_s2_p3.png', ratio: 892 / 724 },
+    '3_1': { img: 'assets/liter3_s2_p1.png', ratio: 601 / 1175 },
+    '3_2': { img: 'assets/liter3_s2_p2.png', ratio: 975 / 760 },
+    '3_3': { img: 'assets/liter3_s2_p3.png', ratio: 1037 / 780 },
+    '4_1': { img: 'assets/liter4_s2_p1.png', ratio: 1016 / 809 },
+    '4_2': { img: 'assets/liter4_s2_p2.png', ratio: 1010 / 789 },
+    '4_3': { img: 'assets/liter4_s2_p3.png', ratio: 560 / 1092 },
+  };
+
+  // Рамки помещений на плане (в % от изображения), порядок = порядок юнитов в units[key]
+  planBoxes = {
+    '1_1': [
+      [{ poly: [[56,6],[75.5,6],[75.5,22.5],[72.5,22.5],[72.5,47.5],[61,47.5],[61,40.5],[57.5,40.5],[57.5,28],[56,28]] }, { l: 72.5, t: 22.5, w: 3, h: 7.5 }],
+      [{ poly: [[76,5.5],[94.5,5.5],[94.5,17.5],[79,17.5],[79,22.5],[76,22.5]] }, { l: 76, t: 22.5, w: 3.3, h: 7.5 }],
+      [{ poly: [[79.5,17.5],[98,17.5],[98,31],[94.5,31],[94.5,51],[77,51],[77,41],[73,41],[73,31],[79.5,31]] }, { l: 73, t: 41, w: 3.8, h: 7.5 }],
+      [{ poly: [[73,51],[98,51],[98,76.5],[92,76.5],[92,97.5],[69,97.5],[69,70],[73,70]] }, { l: 70.5, t: 48.5, w: 2.5, h: 7.5 }],
+      [{ l: 51.5, t: 70, w: 17, h: 27.5 }],
+      [{ l: 42.5, t: 70, w: 8.5, h: 27.5 }],
+      [{ poly: [[25.5,47],[46.5,47],[46.5,70],[42,70],[42,97.5],[25.5,97.5],[25.5,75],[27.2,75],[27.2,68.5],[25.5,68.5]] }],
+      [{ l: 17.5, t: 47, w: 8, h: 50.5 }, { l: 23.5, t: 68.5, w: 3.7, h: 6.5 }],
+      [{ l: 0.3, t: 47, w: 16.7, h: 50.5 }, { l: 13, t: 68.5, w: 5.5, h: 7 }],
+    ],
+    '1_2': [
+      [{ l: 81.3, t: 48.5, w: 15.8, h: 48.5 }],
+      [{ l: 73, t: 48.5, w: 7.5, h: 48.5 }, { l: 69, t: 70.5, w: 4, h: 4.5 }],
+      [{ poly: [[52.5,48.5],[73,48.5],[73,70.5],[69,70.5],[69,75],[73,75],[73,97],[56.5,97],[56.5,70],[52.5,70]] }],
+      [{ l: 39.5, t: 70, w: 17, h: 27 }],
+      [{ poly: [[23,74],[34,74],[34,70],[39,70],[39,97],[23,97]] }],
+      [{ poly: [[6.5,63.5],[27.5,63.5],[27.5,70],[22.5,70],[22.5,97],[9.5,97],[9.5,83.5],[6.5,83.5]] }],
+      [{ l: 6.5, t: 49.5, w: 23.5, h: 13.5 }],
+      [{ poly: [[6.5,29],[43,29],[43,38.5],[38.5,38.5],[38.5,48.5],[6.5,48.5]] }],
+      [{ l: 6.5, t: 10, w: 36.5, h: 18.5 }],
+    ],
+    '1_3': [
+      [{ poly: [[13,88.3],[85,88.3],[85,93],[82,93],[82,99],[20,99],[20,93],[13,93]] }],
+      [{ l: 5, t: 78, w: 85, h: 9.5 }],
+      [{ poly: [[5,65],[44,65],[44,61.5],[90,61.5],[90,77.5],[5,77.5]] }],
+      [{ poly: [[5,51],[44,51],[44,56],[54,56],[54,61.5],[44,61.5],[44,64.5],[5,64.5]] }],
+      [{ poly: [[5,38],[44,38],[44,47.5],[54,47.5],[54,51],[5,51]] }],
+      [{ poly: [[5,25],[90,25],[90,44],[54,44],[54,37.5],[5,37.5]] }],
+      [{ l: 5, t: 17.2, w: 85, h: 7.6 }],
+      [{ poly: [[13,4],[84,4],[84,9.5],[90,9.5],[90,17],[5,17],[5,16],[13,16]] }],
+    ],
+    '2_1': [ // литер 2 (ген. 10), БТИ 81–101
+      [{ poly: [[13,4.5],[85,4.5],[85,16.5],[54,16.8],[54,18.3],[6.5,18.3],[6.5,10.3],[13,10.3]] }],
+      [{ poly: [[6.5,19],[54,19],[54,17.2],[92,17.2],[92,24.8],[6.5,24.8]] }],
+      [{ poly: [[6.5,25.3],[92,25.3],[92,37.6],[42.5,37.6],[42.5,43.6],[6.5,43.6]] }],
+      [{ poly: [[43,38.3],[92,38.3],[92,51],[43,51]] }],
+      [{ poly: [[43,51.6],[92,51.6],[92,64.6],[52.5,64.6],[52.5,60.2],[43,60.2]] }],
+      [{ poly: [[6.5,62.8],[42,62.8],[42,60.6],[52.5,60.6],[52.5,65.2],[92,65.2],[92,78.3],[6.5,78.3]] }],
+      [{ poly: [[6.5,79],[92,79],[92,85.6],[6.5,85.6]] }],
+      [{ poly: [[6.5,86.3],[85,86.3],[85,92.3],[79.5,92.3],[79.5,99.3],[12.5,99.3],[12.5,92.3],[6.5,92.3]] }],
+    ],
+    '2_2': [ // литер 2 (ген. 10), БТИ 240–262
+      [{ poly: [[55.5,2.3],[92.5,2.3],[92.5,22.5],[55.5,22.5]] }],
+      [{ poly: [[55.5,23.5],[92.5,23.5],[92.5,44.5],[60.5,44.5],[60.5,32.5],[55.5,32.5]] }],
+      [{ poly: [[69.5,45.5],[92.5,45.5],[92.5,60.5],[71.5,60.5],[71.5,54],[69.5,54]] }],
+      [{ poly: [[71.5,61.3],[92.5,61.3],[92.5,81],[90,81],[90,84],[89.5,84],[89.5,97.8],[76.5,97.8],[76.5,73.8],[71.5,73.8]] }],
+      [{ poly: [[59.5,68.3],[71.5,68.3],[71.5,73.8],[76,73.8],[76,97.8],[60.2,97.8],[60.2,73.8],[59.5,73.8]] }],
+      [{ poly: [[43,68.3],[59.5,68.3],[59.5,97.8],[43,97.8]] }],
+      [{ poly: [[26.3,45],[46.5,45],[46.5,67.8],[42.3,67.8],[42.3,97.8],[26.5,97.8],[26.5,74],[30,74],[30,68],[26.3,68]] }],
+      [{ poly: [[17.8,45],[26,45],[26,68.5],[29.5,68.5],[29.5,74],[26,74],[26,97.8],[17.8,97.8]] }],
+      [{ poly: [[1.5,45],[17.5,45],[17.5,97.8],[1.5,97.8]] }],
+    ],
+    '2_3': [ // литер 2 (ген. 10), БТИ 458–480
+      [{ poly: [[82.5,48],[99,48],[99,98.3],[82.5,98.3],[82.5,76.5],[80.8,76.5],[80.8,70],[82.5,70]] }],
+      [{ poly: [[74.7,48],[82.3,48],[82.3,70],[80.8,70],[80.8,76.5],[82.3,76.5],[82.3,98.3],[74.7,98.3],[74.7,76],[72.5,76],[72.5,70],[74.7,70]] }],
+      [{ poly: [[52.8,48],[74.7,48],[74.7,70],[72.5,70],[72.5,76],[74.7,76],[74.7,98.3],[57.3,98.3],[57.3,69.8],[52.8,69.8]] }],
+      [{ poly: [[48.5,70],[57.2,70],[57.2,98.3],[48.5,98.3]] }],
+      [{ poly: [[30.8,70.5],[48,70.5],[48,98.3],[30.8,98.3]] }],
+      [{ poly: [[1.5,52.2],[22.5,52.2],[22.5,48.3],[26.5,48.3],[26.5,70.8],[30.6,70.8],[30.6,98.3],[8.3,98.3],[8.3,77],[1.8,77]] }, { l: 26.5, t: 48.5, w: 3, h: 7.5 }],
+      [{ poly: [[4.5,18.5],[20,18.5],[20,31.5],[26,31.5],[26,51.5],[4.8,51.5],[4.8,30.5],[1.5,30.5],[1.5,19.5],[4.5,19.5]] }],
+      [{ l: 4.5, t: 5.8, w: 15.5, h: 11.3 }, { l: 20.2, t: 22.5, w: 2.7, h: 8 }],
+      [{ poly: [[23.5,5.3],[43,5.3],[43,28],[41.5,28],[41.5,40.8],[38.8,40.8],[38.8,48],[26.5,48],[26.5,31],[23.5,31]] }],
+    ],
+    '3_1': [
+      [{ poly: [[10.2,84],[70.5,84],[70.5,89.5],[64.5,89.5],[64.5,96],[10.2,96]] }, { l: 36.5, t: 91.5, w: 5, h: 4 }],   // пом 1: зал 260 (скошенный угол) + 259
+      [{ l: 10.2, t: 76, w: 62.3, h: 7 }, { l: 33.5, t: 76, w: 6.5, h: 3.5 }],   // пом 2: зал 261 + 262
+      [{ l: 10.2, t: 63.5, w: 62.3, h: 12 }, { l: 33.5, t: 70.5, w: 7.5, h: 5 }], // пом 3: зал 264 + 263
+      [{ l: 10.2, t: 50.5, w: 26.8, h: 12.5 }, { l: 36.8, t: 50.5, w: 3.2, h: 3.5 }], // пом 4: зал 265 + 266
+      [{ l: 10.2, t: 38.5, w: 27, h: 11.5 }, { l: 38.5, t: 41.5, w: 5.5, h: 3.5 }], // пом 5: зал 267 + 268
+      [{ l: 10.2, t: 25.8, w: 62.3, h: 11.7 }, { l: 36.5, t: 26.3, w: 7.5, h: 5.2 }], // пом 6: зал 269 + 270
+      [{ l: 10.2, t: 18.8, w: 62.3, h: 6.3 }, { l: 40, t: 19, w: 4.5, h: 3 }],      // пом 7: зал 271 + 272
+      [{ poly: [[20.4,6],[67.4,6],[67.4,11.5],[72.5,11.5],[72.5,18.1],[15.4,18.1],[15.4,11.5],[20.4,11.5]] }, { l: 40, t: 6.2, w: 5, h: 4 }], // пом 8: зал 273 (ступенчатые углы) + 274
+    ],
+    '3_2': [
+      [{ l: 9.5, t: 72, w: 36, h: 19.5 }],                                    // пом 9: 275 + 276
+      [{ l: 9.5, t: 53, w: 36, h: 19 }],                                      // пом 10: 277 + 278
+      [{ l: 9.5, t: 38.5, w: 19, h: 14 }, { l: 25.5, t: 38.5, w: 3.5, h: 5.5 }],  // пом 11: 279 + 280
+      [{ poly: [[12.8,6],[25.3,6],[25.3,26.5],[29.5,26.5],[29.5,38.5],[9.5,38.5],[9.5,16],[12.8,16]] }, { l: 25.5, t: 33, w: 4, h: 5 }], // пом 12: 282 (ступень наружной стены, выступ к лифтам) + 281
+      [{ poly: [[25.3,6],[40,6],[40,26.5],[36,26.5],[36,31.5],[30.3,31.5],[30.3,26.5],[25.3,26.5]] }, { l: 36, t: 26.5, w: 4, h: 5 }], // пом 13: зал 283 (с закутком x30–36) + тамбур 284 (x36–40)
+      [{ poly: [[40.5,6],[57.2,6],[57.2,31.4],[44.6,31.4],[44.6,26.5],[40.5,26.5]] }, { l: 40.5, t: 26.5, w: 4.1, h: 5 }], // пом 14: зал 286 (с нижней полосой до x57,2) + тамбур 285
+      [{ poly: [[57.5,6],[72.7,6],[72.7,52.5],[53.5,52.5],[53.5,32],[57.5,32]] }, { l: 63, t: 26.5, w: 5, h: 5.5 }], // пом 15: 287 (Г-обр., от стены x57,5) + 288
+      [{ l: 72.7, t: 6, w: 7.5, h: 46.5 }, { l: 74, t: 26.5, w: 3, h: 5.5 }], // пом 16: 289 + 290
+      [{ l: 80.2, t: 6, w: 16.3, h: 46.5 }, { l: 84.5, t: 26.5, w: 4, h: 5.5 }], // пом 17: 292 + 291
+    ],
+    '3_3': [
+      [{ l: 11.6, t: 5.1, w: 8.4, h: 46.2 }, { l: 16.4, t: 26, w: 3.8, h: 5.8 }],          // пом 18: 293 + 294
+      [{ l: 20.5, t: 5.1, w: 6.7, h: 46.2 }, { l: 22, t: 26, w: 5.2, h: 5.8 }],      // пом 19: 295 + 296
+      [{ l: 27.6, t: 5.1, w: 14.6, h: 46.2 }, { l: 29, t: 26, w: 5, h: 6 }],       // пом 20: 298 + 297
+      [{ l: 42.4, t: 5.1, w: 5.8, h: 24.7 }],                                     // пом 21: 300 + 299
+      [{ l: 48.7, t: 5.1, w: 13.1, h: 25 }],                                    // пом 22: 302 + 301
+      [{ l: 65.1, t: 5.4, w: 18.6, h: 19.9 }, { l: 65.1, t: 21.2, w: 4.3, h: 4.1 }], // пом 23: зал 304 (ступень наружной стены) + 303
+      [{ poly: [[64.9,26.3],[89.3,26.3],[89.3,47.8],[66.5,47.8],[66.5,44],[68.1,44],[68.1,30.8],[64.9,30.8]] }, { l: 66.5, t: 44, w: 2.5, h: 3.8 }], // пом 24: зал 305 (вырез под лифты) + 306
+      [{ poly: [[72.9,52.6],[86.4,52.6],[86.4,66.5],[70.2,66.5],[70.2,57.5],[72.9,57.5]] }, { l: 69.3, t: 52.6, w: 3.6, h: 4.9 }],   // пом 25: зал 308 + 307
+      [{ poly: [[70.9,68],[89.1,68],[89.1,81],[86.5,81],[86.5,90.6],[70.9,90.6]] }, { l: 71, t: 68.2, w: 2.4, h: 7.4 }], // пом 26: зал 310 (ступень наружной стены) + 309
+      [{ poly: [[58.1,51.8],[67.8,51.8],[67.8,75.8],[70.3,75.8],[70.3,90.6],[53.9,90.6],[53.9,70.6],[55.5,70.6],[55.5,59],[58.1,59]] }, { l: 68.1, t: 67.3, w: 2.2, h: 8.5 }],  // пом 27: 311 (Г-образный, вырез под лестницу) + 312
+    ],
+    '4_1': [
+      [{ poly: [[27.5,60],[42,60],[42,91],[24,91],[24,75],[27.5,75]] }, { l: 24.5, t: 66, w: 3, h: 9 }],      // пом 1: 92 (Г-образный) + 93
+      [{ l: 5.5, t: 70, w: 19, h: 21 }, { l: 21.5, t: 66, w: 3, h: 9 }],     // пом 2: 95 + 94
+      [{ l: 8, t: 51, w: 15.5, h: 19 }, { l: 23.5, t: 54, w: 3.5, h: 6 }],   // пом 3: 96 + 97
+      [{ poly: [[4,28],[31,28],[31,33.5],[26.5,33.5],[26.5,50],[4,50]] }, { l: 26.5, t: 44.5, w: 3.5, h: 4 }], // пом 4: зал 99 (Г-обр., вырез под лифты) + 98
+      [{ l: 10.5, t: 8, w: 20.5, h: 20 }, { l: 26.5, t: 23.5, w: 4, h: 4.5 }], // пом 5: зал 100 + 101
+      [{ l: 31.5, t: 8, w: 14.5, h: 20.5 }, { l: 40.5, t: 28.5, w: 3.5, h: 4.5 }], // пом 6: зал 102 + 103
+      [{ l: 46, t: 8, w: 9.5, h: 20.5 }, { l: 50, t: 28.5, w: 5, h: 5 }],    // пом 7: зал 104 + 105
+      [{ poly: [[56,8],[68.5,8],[68.5,53],[50.5,53],[50.5,33.5],[56,33.5]] }, { l: 60.5, t: 29.5, w: 3.5, h: 5 }],  // пом 8: зал 106 (Г-обр., расширение слева ниже тамбуров) + тамбур 107
+      [{ l: 68.5, t: 8, w: 7.5, h: 45 }, { l: 64, t: 29.5, w: 4, h: 5 }],     // пом 9: зал 109 + тамбур 108
+      [{ l: 76, t: 8, w: 14.5, h: 45 }, { l: 70.5, t: 28.5, w: 4.5, h: 5.5 }], // пом 10: зал 111 + тамбур 110
+    ],
+    '4_2': [
+      [{ poly: [[12.9,8],[27.43,8],[27.43,54.5],[12.9,54.5]] }], // пом 11: 319 + 318 единым контуром (левая стена подъезда x12,9)
+      [{ poly: [[27.44,8],[35.46,8],[35.46,29],[39,29],[39,34],[35.46,34],[35.46,54.5],[27.44,54.5]] }],         // пом 12: 317 + тамбур 316 (карман x35,5–39 / y29–34)
+      [{ poly: [[35.46,8],[50.3,8],[50.3,33.5],[54,33.5],[54,54.5],[35.46,54.5],[35.46,34],[39,34],[39,29],[35.46,29]] }],    // пом 13: 314 + 315; правая стена x50,3 до y33,5, ниже уступ до x54 (до лестницы)
+      [{ l: 50.1, t: 8, w: 15.59, h: 22.5 }, { l: 57.66, t: 28, w: 3.31, h: 5.5 }],    // пом 14: зал 313 + 312
+      [{ l: 65.69, t: 8, w: 14.64, h: 21.5 }, { l: 65.69, t: 28, w: 3.31, h: 5.5 }], // пом 15: зал 305 + 306
+      [{ poly: [[80.8,8],[91.2,8],[91.2,17.5],[94.97,17.5],[94.97,40],[80.8,40]] }, { l: 82.69, t: 35.5, w: 3.78, h: 4 }], // пом 16: зал 304 (ступень наружной стены) + 303
+      [{ poly: [[74.5,40],[96.38,40],[96.38,55],[77.5,55],[77.5,47],[74.5,47]] }],         // пом 17: зал 301 + 302 (выемка снизу слева, под лестницу МОП)
+      [{ poly: [[66.5,55],[96.38,55],[96.38,72.5],[62,72.5],[62,64],[66.5,64]] }], // пом 18: 300 + 299; левая стена x66,5 до y64, ниже уступ на x62
+      [{ poly: [[61.91,72.5],[96.38,72.5],[96.38,90.5],[61.91,90.5]] }], // пом 19: зал 298 + тамбур 297 единым контуром
+    ],
+    '4_3': [
+      [{ poly: [[24,1.5],[75.5,1.5],[75.5,8],[80.5,8],[80.5,15],[18.5,15],[18.5,8],[24,8]] }],   // пом 20: 509 + 508 (справа стена x75,5 до y8, затем уступ до x80,5)
+      [{ poly: [[18.5,15],[86,15],[86,23],[18.5,23]] }],    // пом 21: 511 + 510
+      [{ poly: [[18.5,23],[86,23],[86,36.5],[49,36.5],[49,39.5],[18.5,39.5]] }],     // пом 22: 513 + 512 (внизу до верха МОП y39,5 на x18,5–49)
+      [{ poly: [[49,36.5],[86,36.5],[86,50],[49,50]] }],     // пом 23: 516 + 515
+      [{ poly: [[49,50],[86,50],[86,64],[47,64],[47,57.5],[49,57.5]] }],   // пом 24: 522 + 521
+      [{ poly: [[18.5,57.5],[47,57.5],[47,64],[86,64],[86,76.5],[18.5,76.5]] }], // пом 25: 523 (Г-обр.) + 524
+      [{ poly: [[18.5,76.5],[86,76.5],[86,86],[78.5,86],[78.5,85.2],[54,85.2],[54,83.5],[18.5,83.5]] }],  // пом 26: 526 + 525, слева до наружной стены (в линию с 527)
+      [{ poly: [[18.5,83.5],[54,83.5],[54,85.2],[78.5,85.2],[78.5,86],[80.5,86],[80.5,98],[22,98],[22,92],[18.5,92]] }],   // пом 27: 527 + 528 (верх: уступ на x54 к y85,2, у x78,5 ещё вниз до y86)
+    ],
+  };
+
+  planMop = {
+    '3_1': [{ l: 44.5, t: 38.5, w: 28.5, h: 19.5 }],
+    '3_2': [{ poly: [[30.5,32.5],[53.5,32.5],[53.5,52.5],[31,52.5],[31,44.5],[29,44.5],[29,38.5],[30.5,38.5]] }],
+    '3_3': [{ l: 48.5, t: 30.8, w: 13.4, h: 20.9 }, { l: 62, t: 31.4, w: 4.6, h: 12.8 }, { l: 40.5, t: 52.5, w: 12, h: 9.5 }, { l: 45.6, t: 30.8, w: 2.9, h: 20.5 }],
+    '4_1': [{ l: 26.5, t: 33.5, w: 15.5, h: 11 }, { l: 30, t: 44.5, w: 12, h: 7.5 }, { l: 26.5, t: 48.5, w: 3.5, h: 3.5 }, { l: 42, t: 34, w: 8.5, h: 18.5 }],
+    '4_2': [{ poly: [[54,34],[77.5,34],[77.5,47],[74.5,47],[74.5,54.5],[54,54.5]] }],
+    '4_3': [{ l: 18.5, t: 39.5, w: 30.5, h: 18 }],
+  };
+
+  componentDidMount() {
+    const apply = () => {
+      const d = window.__SM_DATA_2;
+      if (!d || !window.OMPriceNet) return false;
+      this.units = d.units;
+      // рыночная цена помещений — цена нетто из реестра рекомендуемых цен (август 2026)
+      if (window.OMPriceNet) window.OMPriceNet.apply(2, this.units);
+      this.rnv = d.rnv;
+      if (window.OMSales && window.OMSales[2]) this.sales = window.OMSales[2];
+      if (d.tenantsReg) this.tenantsReg = d.tenantsReg;
+      this.pastTenants = Object.assign({}, this.pastTenants, { '3_2|10': [{ tenant: 'ИП Бархо В.В. (права переданы ИП Бобовой Е.Е. по договору уступки)', rate: '1 700 ₽/м² · 133 280 ₽/мес', period: '12.07.2024 — 25.03.2026' }], '4_2|11': [{ tenant: 'ИП Васильев И.А. (права переданы ИП Семенютину М.С. по договору уступки)', rate: '1 700 ₽/м² · 150 280 ₽/мес', period: '30.08.2024 — 24.02.2026' }] });
+      this.cadastre = this.cadastre || {};
+      this.cadastre['stop4|1'] = 'ЗУ 23:43:0106012:59603'; // ОК №4 (свод остановок, собственник ЗУ и ОК — ООО «Парк-Инвест»)
+      // кадастровые номера по выпискам ЕГРН (29.07.2025)
+      Object.assign(this.cadastre, {'1_1|1':'23:43:0106012:15347', '2_3|26':'23:43:0106012:14410', '4_2|11':'23:43:0106012:18990', '4_2|12':'23:43:0106012:18989', '4_2|13':'23:43:0106012:18988', '4_2|14':'23:43:0106012:18987', '4_2|18':'23:43:0106012:18983', '1_3|19':'23:43:0106012:15367','1_3|24':'23:43:0106012:15372','3_1|3':'23:43:0106012:16378','3_1|6':'23:43:0106012:16382','3_2|9':'23:43:0106012:16385','3_2|10':'23:43:0106012:16386','3_3|20':'23:43:0106012:16397','4_1|8':'23:43:0106012:19936','4_2|11':'23:43:0106012:18990','4_2|14':'23:43:0106012:18987','4_2|18':'23:43:0106012:18983','m910|2':'23:43:0106012:16199','m910|3':'23:43:0106012:16199'});
+      if (window.OMNtoSZ) window.OMNtoSZ.apply(this, 2); // НТО (nto_sz.js) — после tenantsReg
+      this.forceUpdate();
+      return true;
+    };
+    if (!apply()) {
+      const t = setInterval(() => { if (apply()) clearInterval(t); }, 60);
+      setTimeout(() => clearInterval(t), 20000);
+    }
+  }
+
+  // контуры зданий на кропе генплана (% от изображения); генплан-литеры: 9=Л1, 10=Л2, 11=Л3, 12=Л4
+  polys = {
+    '3_2': [[20.9,12.43],[31.5,12.43],[31.5,19.72],[25.2,19.72],[25.2,20.15],[20.9,20.15]],
+    '3_3': [[31.5,12.43],[41.7,12.43],[41.7,23.22],[37.6,23.22],[37.6,19.72],[31.5,19.72]],
+    '3_1': [[20.9,20.15],[25.2,20.15],[25.2,35.44],[20.9,35.44]],
+    '1_3': [[20.85,35.9],[25.3,35.9],[25.3,48.51],[20.85,48.51]],
+    '1_2': [[20.85,48.51],[25.3,48.51],[25.3,51.66],[31.3,51.66],[31.3,58.8],[20.85,58.8]],
+    '1_1': [[31.3,51.66],[37.8,51.66],[37.8,48.23],[42.1,48.23],[42.1,58.8],[31.3,58.8]],
+    'k':   [[49,15.36],[52.8,15.36],[52.8,17],[54.4,17],[54.4,22.58],[52.8,22.58],[52.8,24.79],[49,24.79],[49,22.58],[47.2,22.58],[47.2,17],[49,17]],
+    '2_3': [[59.3,48.3],[63.8,48.3],[63.8,51.66],[70.5,51.66],[70.5,58.73],[59.3,58.73]],
+    '2_2': [[70.5,51.66],[76.4,51.66],[76.4,48.58],[80.6,48.58],[80.6,58.73],[70.5,58.73]],
+    '2_1': [[76.4,35.94],[80.6,35.94],[80.6,48.58],[76.4,48.58]],
+    // остановка справа от литера 12 (ген.)
+    'stop4': [[91.0,23.01],[92.6,23.01],[92.6,25.29],[91.0,25.29]],
+    '4_3': [[76.4,20.43],[80.7,20.43],[80.7,35.15],[76.4,35.15]],
+    '4_2': [[70.6,12.36],[80.7,12.36],[80.7,20.43],[76.4,20.43],[76.4,19.79],[70.6,19.79]],
+    '4_1': [[60.3,12.36],[70.6,12.36],[70.6,19.79],[64.2,19.79],[64.2,23.01],[59.8,23.01],[59.8,14.36],[60.3,14.36]],
+    'wash': [[83.4,73.9],[86.9,73.9],[86.9,85.7],[83.4,85.7]],
+    'top': [[79.5,8.57],[88.5,8.57],[88.5,11.07],[79.5,11.07]],
+    'm910': [[42.1,53.08],[59.3,53.08],[59.3,58.8],[42.1,58.8]],
+    'v': [[48.4,48.23],[52.9,48.23],[52.9,52.23],[48.4,52.23]],
+  };
+
+  names = {
+    '1_1': 'Литер 1 · Подъезд 1 (ген. 9)', '1_2': 'Литер 1 · Подъезд 2 (ген. 9)', '1_3': 'Литер 1 · Подъезд 3 (ген. 9)',
+    '2_1': 'Литер 2 · Подъезд 1 (ген. 10)', '2_2': 'Литер 2 · Подъезд 2 (ген. 10)', '2_3': 'Литер 2 · Подъезд 3 (ген. 10)',
+    '3_1': 'Литер 3 · Подъезд 1 (ген. 11)', '3_2': 'Литер 3 · Подъезд 2 (ген. 11)', '3_3': 'Литер 3 · Подъезд 3 (ген. 11)',
+    '4_1': 'Литер 4 · Подъезд 1 (ген. 12)', '4_2': 'Литер 4 · Подъезд 2 (ген. 12)', '4_3': 'Литер 4 · Подъезд 3 (ген. 12)',
+    'stop4': 'Остановка №4', 'k': 'Строение Е', 'wash': 'Автомойка', 'top': 'Строение Ж', 'm910': 'Строение А', 'v': 'Строение В',
+  };
+
+  // Литер К — техпаспорт (Западный Обход 57, строение Е): два этажа
+  bFloors = {
+    k: { addr: 'ул. Западный Обход, 57, строение Е · ТП литера К', floors: [
+      { label: '1 этаж', img: 'assets/k_floor1.png', ratio: 1912/1662,
+        boxes: [ [{ poly: [[37.4,6],[82.6,6],[82.6,27.4],[99.4,27.4],[99.4,69.5],[82.6,69.5],[82.6,93],[37.4,93],[37.4,69.5],[10.5,69.5],[10.5,27.4],[37.4,27.4]] }, { l: 37.4, t: 26.5, w: 9.9, h: 6 }], null ],
+        mop: [ { l: 28.2, t: 6.9, w: 9.2, h: 25.6 }, { l: 28.2, t: 65.6, w: 9.2, h: 27.4 } ] },
+      { label: '2 этаж', img: 'assets/k_floor2.png', ratio: 1912/1662,
+        boxes: [ null, [{ poly: [[36.1,6],[82.6,6],[82.6,27.4],[99.4,27.4],[99.4,69.5],[82.6,69.5],[82.6,93],[36.1,93],[36.1,69.5],[10.7,69.5],[10.7,27.4],[36.1,27.4]] }] ],
+        mop: [ { l: 20.7, t: 4.8, w: 15.4, h: 24.7 }, { l: 20.7, t: 62.6, w: 15.4, h: 24.6 }, { l: 3.4, t: 24.1, w: 5.8, h: 42.7 } ] } ] },
+    v: { addr: 'ТП литера В (между литерами 9 и 10)', floors: [
+      { label: '1 этаж', img: 'assets/v_floor1_v2.png', ratio: 834/645,
+        boxes: [ [{ poly: [[9.2,11.2],[49.3,11.2],[49.3,92.7],[9.2,92.7]] }], [{ poly: [[50.1,11.2],[90.7,11.2],[90.7,92.7],[50.1,92.7]] }] ] } ] },
+    top: { addr: 'ул. Западный Обход, 57, строение Ж · ТП литера 4а', floors: [
+      { label: '1 этаж', img: 'assets/zh_floor1_v4.png', ratio: 1124/486,
+        boxes: [ [{ poly: [[8.5,70.1],[44,71.4],[44,94.2],[8.5,93.6]] }], [{ poly: [[53.7,71.9],[86.8,73.3],[86.8,89.8],[92.5,90],[92.5,95.8],[53.7,94.5]] }], [{ poly: [[44.2,71.4],[53.1,71.8],[53.1,94.5],[44.2,94.2]] }] ],
+        mop: [ { l: 3.2, t: 69.8, w: 5, h: 24.2 }, { l: 87, t: 73.5, w: 5.3, h: 16 }, { l: 92.9, t: 73.3, w: 3.9, h: 23.7 } ] },
+      { label: 'б/н этаж', img: 'assets/a4_bn.png', ratio: 3140/800,
+        boxes: [ null, null ],
+        mop: [ { l: 1.5, t: 10, w: 5, h: 43 }, { l: 90.2, t: 15, w: 4.5, h: 43 } ] } ] },
+    m910: { addr: 'ТП литера А (между литерами 9 и 10)', floors: [
+      { label: '1 этаж', img: 'assets/a_floor1.png', ratio: 1350/395 } ] },
+  };
+
+  utilJk = 's2';
+
+  residentsCapacity = 5540;
+
+  select(id) { this.setState({ selected: id, summaryFilter: null, planZoom: false, floorIdx: 0, hoveredUnitIdx: null, zoomHoverIdx: null }); }
+
+  closePanel() { this.setState({ selected: null, hoveredUnitIdx: null, zoomHoverIdx: null }); }
+
+  unitFields(key) {
+    const list = this.units[key] || [];
+    if (!list.length) return { noCommercial: true, commercial: null, unitsLabel: '', units: '', statuses: [] };
+    const isZu = String(key).startsWith('zu') || String(key).startsWith('stop');
+    const area = list.reduce((s, u) => { const n = parseFloat(String(u.area).replace(',', '.')); return isFinite(n) ? s + n : s; }, 0);
+    const counts = {};
+    for (const u of list) { const s = this.unitStatus(key, u); counts[s] = (counts[s] || 0) + 1; }
+    return { noCommercial: false, commercial: list.length,
+      commercialLabel: isZu ? 'Мест в аренду' : 'Коммерческих помещений',
+      unitsLabel: area > 0 ? 'Площадь коммерческих помещений' : '', units: area > 0 ? this.fmtArea(area) : '',
+      statuses: Object.keys(counts).map(s => `${s}: ${counts[s]}`) };
+  }
+
+  renderVals() {
+    if (window.OMKpAddr) window.OMKpAddr.apply(this, 's2');
+    if (window.OMVolumes) this._volInfo = window.OMVolumes.fill(this);
+    const vals = {};
+    const fmtArea = (n) => this.fmtArea(n);
+    const accent = '#2b2a27';
+    const theme = this.props.theme || 'light';
+    const themes = {
+      light: { pageBg: '#f4f2ee', cardBg: '#fffdf9', border: '#ddd8cd', text: '#2b2a27', muted: '#6b6a64', imgCardBg: '#fff', statusNeutralBg: '#f7f5f0', statusGreenBg: '#eef6ee', statusOrangeBg: '#fbf3e6' },
+      dark: { pageBg: '#1c1b18', cardBg: '#28261f', border: '#463f31', text: '#f0ece2', muted: '#a89f8f', imgCardBg: '#211f1a', statusNeutralBg: '#332f26', statusGreenBg: '#1f3324', statusOrangeBg: '#3a2c17' },
+    };
+    const th = themes[theme] || themes.light;
+    vals.pageBg = th.pageBg; vals.cardBg = th.cardBg; vals.borderColor = th.border; vals.textColor = th.text;
+    vals.mutedColor = th.muted; vals.imgCardBg = th.imgCardBg; vals.statusNeutralBg = th.statusNeutralBg;
+    vals.statusGreenBg = th.statusGreenBg; vals.statusOrangeBg = th.statusOrangeBg;
+    vals.statusRedBg = theme === 'dark' ? '#3a2420' : '#faf0ee';
+    vals.statusNeutralBorder = '#c3bdb0';
+    vals.accent = accent;
+
+    vals.leave = () => this.leaveAll();
+    vals.showActive = !!this.state.showActive;
+    vals.activeBtnBg = this.state.showActive ? '#a3312b' : 'transparent';
+    vals.activeBtnFg = this.state.showActive ? '#ffffff' : '#a3312b';
+    vals.activeBtnLabel = this.state.showActive ? 'Скрыть актив' : 'Показать актив';
+    vals.toggleActive = () => this.setState((s) => ({ showActive: !s.showActive }));
+    vals.activeMarks = this.buildActiveMarks();
+    vals.storefronts = this._storefronts || [];
+    // сноска по цветам витрин: только категории, встречающиеся в этом ЖК
+    {
+      const agg = {};
+      for (const sf of (vals.storefronts || [])) {
+        if (!agg[sf.cat]) agg[sf.cat] = { name: sf.cat, c: sf.c, n: 0 };
+        agg[sf.cat].n++;
+      }
+      const list = Object.keys(agg).map((k2) => agg[k2]);
+      list.sort((a, b) => (a.name === 'Свободно' ? 1 : b.name === 'Свободно' ? -1 : b.n - a.n));
+      vals.sfLegend = list;
+    }
+    vals.activeTip = this.state.activeTip || null;
+    vals.buildingPolys = Object.keys(this.polys).map((k) => {
+      const hov = this.state.hovered === k || this.state.selected === k;
+      return { id: k, points: this.polys[k].map(p => p.join(',')).join(' '),
+        fill: k === 'top' ? 'rgba(148,147,153,0.92)' : 'transparent',
+        stroke: hov ? '#a3312b' : 'transparent',
+        onEnter: () => this.enter(k), onClick: () => this.select(k) };
+    });
+
+    if (this.state.hovered && this.polys[this.state.hovered]) {
+      const key = this.state.hovered;
+      const poly = this.polys[key];
+      const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]);
+      const bx0 = Math.min(...xs), bx1 = Math.max(...xs);
+      const by0 = Math.min(...ys);
+      const TIP_W = 26, TIP_H = 24;
+      let left, transform;
+      if (bx1 + 1.5 + TIP_W <= 99) { left = (bx1 + 1.5) + '%'; transform = 'none'; }
+      else { left = (bx0 - 1.5) + '%'; transform = 'translateX(-100%)'; }
+      const top = Math.max(1, Math.min(by0, 99 - TIP_H)) + '%';
+      vals.activeInfo = { name: this.names[key], left, top, transform, rnv: this.rnv[key], ...this.unitFields(key) };
+    } else {
+      vals.activeInfo = null;
+    }
+
+    vals.closePanel = () => this.closePanel();
+    if (this.state.selected) {
+      const id = this.state.selected;
+      const regFor = (u) => { const t = (this.tenantsReg[id] || []).find(t => t.unit && String(u.number).split(',')[0].trim() === t.unit); return t ? { ...t, hasBrand: !!t.brand && t.brand !== '—' } : null; };
+      const list = (this.units[id] || []).map((u, idx) => ({ ...u,
+        status: this.unitStatus(id, u),
+        liqColor: this.liqColors[u.liq] || 'transparent',
+        strike: u.status === 'Продано' ? 'line-through' : 'none',
+        notSold: u.status !== 'Продано' && !u.isNto,
+        role: u.role || 'Владелец',
+        companyOrDash: u.company || 'не указано',
+        marketPrice: u.marketPrice || u.price || 'не указана',
+        fias: this.fiasOf(id, u), cadastre: this.cadastre[id + '|' + String(u.number).split(',')[0].trim()] || 'нет данных',
+        cardBg: /Продано/i.test(u.status || '') ? '#1b1916' : (this.liqColors[u.liq] || 'transparent'),
+        fg: /Продано/i.test(u.status || '') ? '#f2ede4' : vals.textColor,
+        fgMuted: /Продано/i.test(u.status || '') ? '#a9a196' : vals.mutedColor,
+        cornerFg: /Продано/i.test(u.status || '') ? '#e0938d' : '#a3312b',
+        cardPad: /Продано/i.test(u.status || '') ? '7px 10px' : '10px 12px',
+        cardAlign: /Продано/i.test(u.status || '') ? 'start' : 'stretch',
+        chipMargin: /Продано/i.test(u.status || '') ? '4px 0 5px' : '6px 0 8px',
+        rowGap: /Продано/i.test(u.status || '') ? '1px' : '3px',
+        rowFont: /Продано/i.test(u.status || '') ? '11px' : '11.5px',
+        rowLine: /Продано/i.test(u.status || '') ? '14px' : '16px',
+        sale: this.saleOf(id, u),
+        // категория торговой точки арендатора — кружок в углу карточки (traffic.js)
+        ttChipCat: (() => {
+          if (/Продано/i.test(u.status || '')) return null;
+          const r = (this.tenantsReg[id] || []).find((t) => t.unit && String(u.number).split(',')[0].trim() === t.unit) || null;
+          if (!r) return null;
+          const c = (window.OMTraffic && window.OMTraffic.catOf) ? window.OMTraffic.catOf(r) : null;
+          return (c && c.name) || 'Прочее';
+        })(),
+        ttChipBg: (() => {
+          const r = (this.tenantsReg[id] || []).find((t) => t.unit && String(u.number).split(',')[0].trim() === t.unit) || null;
+          const c = (r && window.OMTraffic && window.OMTraffic.catOf) ? window.OMTraffic.catOf(r) : null;
+          return ((c && c.c) || '#4b2e83') + '1f';
+        })(),
+        ttChipBd: (() => {
+          const r = (this.tenantsReg[id] || []).find((t) => t.unit && String(u.number).split(',')[0].trim() === t.unit) || null;
+          const c = (r && window.OMTraffic && window.OMTraffic.catOf) ? window.OMTraffic.catOf(r) : null;
+          return ((c && c.c) || '#4b2e83') + '59';
+        })(),
+        ttChipColor: (() => {
+          const r = (this.tenantsReg[id] || []).find((t) => t.unit && String(u.number).split(',')[0].trim() === t.unit) || null;
+          const c = (r && window.OMTraffic && window.OMTraffic.catOf) ? window.OMTraffic.catOf(r) : null;
+          return (c && c.c) || '#4b2e83';
+        })(),
+        // данные сделки показываем в каждой проданной карточке: нет записи — «нет данных»
+        saleDate: (this.saleOf(id, u) || {}).date || 'нет данных',
+        saleFact: (this.saleOf(id, u) || {}).fact || 'нет данных',
+        saleAgent: (this.saleOf(id, u) || {}).agent || 'нет данных',
+        saleBuyer: (this.saleOf(id, u) || {}).buyer || 'нет данных',
+        corner: (this.actualPrice(id, u) || {}).value || (/Продано/i.test(u.status || '') ? 'нет данных' : ''),
+        rentMarket: /^(nto|zu|stop)/.test(String(id)) ? null : (this.actualPrice(id, u) || /Продано/i.test(u.status || '')) ? '' : String(this.marketRentStr() || '').split(':').pop().trim(),
+        cornerTitle: this.actualPrice(id, u) ? 'Актуальная цена помещения' : 'Актуальная на текущий год рыночная ставка аренды',
+        cornerCaption: /Продано/i.test(u.status || '') ? 'Актуальная цена' : '',
+        marketPrice: (this.actualPrice(id, u) || {}).value || u.marketPrice || u.price || 'не указана',
+        marketLabel: this.actualPrice(id, u) ? 'Актуальная цена' : 'Рыночная цена',
+        marketTitle: (this.actualPrice(id, u) || {}).basis || u.marketPrice || u.price || '',
+        idleOnChange: this.idleOnChange(id, u),
+        pastRows: this.pastTenants[id + '|' + String(u.number).split(',')[0].trim()] || [{ tenant: '—', rate: '—', period: '—' }],
+        saleGrowth: this.saleGrowth(id, u),
+        cadLabel: u.status === 'Продано' ? 'Наименование актуальной т.т.' : 'Кадастровый №',
+        cadValue: u.status === 'Продано'
+          ? (this.soldTt[id + '|' + String(u.number).split(',')[0].trim()] || 'нет данных')
+          : (this.cadastre[id + '|' + String(u.number).split(',')[0].trim()] || 'нет данных'),
+        sold: u.status === 'Продано',
+        // категорию проданной точки берём из её названия единой функцией traffic.js
+        ttCat: (() => {
+          if (u.status !== 'Продано') return '—';
+          const nm = this.soldTt[id + '|' + String(u.number).split(',')[0].trim()];
+          if (!nm) return 'нет данных';
+          const c = (window.OMTraffic && window.OMTraffic.catOf) ? window.OMTraffic.catOf({ brand: nm }) : null;
+          return (c && c.name) || 'нет данных';
+        })(),
+        price: u.priceLabel ? u.price : '',
+        priceLabel: u.priceLabel || 'Цена по прайсу',
+        mgmtCo: u.mgmtCo || 'нет данных',
+        mgmtRate: u.mgmtCo === 'без управления' ? '—' : (u.mgmtRate || '—'),
+        mgmtActive: u.mgmtActive || (u.mgmtCo ? 'активен' : 'не активен'),
+        mgmtPaid: u.mgmtPaid || ((v) => v && v !== '0 ₽' ? v : '—')(this.mgmtAccrued(id, u)),
+        mgmtDiscount: u.mgmtDiscount || '—',
+        rentDiscount: u.rentDiscount || '—',
+        rentPaid: u.rentPaid || ((v) => v && v !== '0 ₽' ? v : '—')(this.rentAccrued(id, u)),
+        rentDebt: u.rentDebt || '—',
+        mgmtDebt: u.mgmtDebt || '—', penalties: u.penalties || '—',
+        turnoverMonths: Array.from({ length: 12 }, (_, i) => { const m = i + 1; const active = (this.state.turnoverMonth || 1) === m;
+          return { m, onClick: () => this.setState({ turnoverMonth: m }), bg: active ? accent : 'rgba(0,0,0,0.06)', fg: active ? '#fff' : vals.textColor, fw: active ? 700 : 400 }; }),
+        turnoverValue: (u.turnover && u.turnover[this.state.turnoverMonth || 1]) || 'нет данных',
+        mgmtNote: u.mgmtNote === undefined ? 'в выгрузке КП нет данных об управлении и долгах' : u.mgmtNote,
+        bti: u.btiN || null,
+        btiOrDash: u.btiN || 'не указаны', btiLabelOrDefault: u.btiLabel || 'Номера БТИ',
+        insurance: u.insurance || 'нет',
+        cxUtil: this.cxUtilOf(id, u) || '—', cxUtilC: this.cxColor(this.cxUtilOf(id, u)),
+        utilOpen: !!(this.state.utilOpen || {})[id + '|' + idx], utilChevron: (this.state.utilOpen || {})[id + '|' + idx] ? 'rotate(180deg)' : 'rotate(0deg)',
+        toggleUtil: (e) => { if (e && e.stopPropagation) e.stopPropagation(); const k = id + '|' + idx; this.setState(s => ({ utilOpen: { ...(s.utilOpen || {}), [k]: !(s.utilOpen || {})[k] } })); },
+        ukLabel: (this.literUk && this.literUk[String(id).split('_')[0]]) || 'УК МКД',
+        ...this.secVals(id, idx),
+        cxUtilMkd: u.cxUtilMkd || this.costStr('uk', id, u), cxUtilElec: this.utilStr('e', id, u), cxUtilWater: this.utilStr('w', id, u), cxUtilHeat: this.utilStr('h', id, u),
+        cxSecurity: u.cxSecurity || '—', cxSecurityC: this.cxColor(u.cxSecurity),
+        cxCleaning: u.cxCleaning || '—', cxCleaningC: this.cxColor(u.cxCleaning),
+        cxTO: u.cxTO || '—', cxTOC: this.cxColor(u.cxTO),
+        cxAdmin: this.cxAdminOf(id, u), cxAdminC: this.cxColor(this.cxAdminOf(id, u)),
+        cxTaxes: this.cxTaxesOf(id, u), cxTaxesC: this.cxColor(this.cxTaxesOf(id, u)),
+        cxInsurance: u.cxInsurance || '—', cxInsuranceC: this.cxColor(u.cxInsurance),
+        cxTotal: this.cxTotalOf(id, u),
+        opStart: this.startInvest(u), opRepair: this.opRepairOf(u, id), opAnchor: u.opAnchor || '—', opLoss: u.opLoss || '—',
+        opTotal: this.sumRub(this.opUnit(u, id), ['opStart', 'opRepair', 'opAnchor', 'opLoss']),
+        effNoi: u.effNoi || this.noiOf(id, u, this.cxTotalOf(id, u)), effPayback: u.effPayback || this.paybackOf(id, u), effRoi: u.effRoi || this.roiOf(id, u), effCapRate: u.effCapRate || this.capRateOf(id, u), effPriceDyn: u.effPriceDyn || '—', effPriceDynC: this.growthColor(u.effPriceDyn), effFull: this.fullYieldOf(id, u), effFullC: this.growthColor(this.fullYieldOf(id, u)), effFullTitle: this.fullYieldTitle(id, u),
+        effFair: this.fairValueOf(id, u), effFairTitle: this.fairValueTitle(id, u),
+        fairColor: /Продано/i.test(u.status || '') ? '#e0938d' : '#a3312b',
+        fairBorder: /Продано/i.test(u.status || '') ? 'rgba(224,147,141,0.35)' : 'rgba(163,49,43,0.22)',
+        effCap: u.effCap || '14%', effSpread: u.effSpread || this.spreadOf(id, u), effSpreadC: this.growthColor(u.effSpread || this.spreadOf(id, u)), effOpexBack: u.effOpexBack || this.opexBackOf(id, u), effGrowth: u.effGrowth || this.assetGrowth(id, u), effGrowthYear: this.assetGrowthYear(id, u), effGrowthC: this.growthColor(this.assetGrowth(id, u)),
+        ...this.chip(this.unitStatus(id, u)), ...this.donutsOf(id, u),
+        ...this.regRow(id, u) }));
+      const area = list.reduce((s, u) => { const n = parseFloat(String(u.area).replace(',', '.')); return isFinite(n) ? s + n : s; }, 0);
+      const bCfg = (this.bFloors && this.bFloors[id]) || ((this.ntoFloors && this.ntoFloors[id]) ? { addr: this.ntoFloors[id][0].addr || 'План павильона (типовой)', floors: this.ntoFloors[id] } : null);
+      const fi = this.state.floorIdx || 0;
+      const fp = bCfg ? bCfg.floors[fi] : (this.floorPlans[id] || null);
+      const rects = bCfg ? (fp.boxes || null) : (this.planBoxes[id] || null);
+      const hoveredIdx = this.state.hoveredUnitIdx;
+      const bboxOf = (b) => b.poly ? (() => { const xs = b.poly.map(p => p[0]), ys = b.poly.map(p => p[1]); const l = Math.min(...xs), t = Math.min(...ys); return { l, t, w: Math.max(...xs) - l, h: Math.max(...ys) - t }; })() : b;
+      const ptsOf = (b) => b.poly ? b.poly.map(p => p.join(',')).join(' ') : `${b.l},${b.t} ${b.l + b.w},${b.t} ${b.l + b.w},${b.t + b.h} ${b.l},${b.t + b.h}`;
+      const centers = rects ? rects.map(grp => { if (!grp) return null; const bb = bboxOf(grp[0]); return { left: (bb.l + bb.w / 2) + '%', top: (bb.t + bb.h / 2) + '%' }; }) : null;
+      const highlightBoxes = centers ? centers.map((c, idx) => c ? { ...c, opacity: hoveredIdx === idx ? 1 : 0 } : { left: '0%', top: '0%', opacity: 0 }) : null;
+      const outlineOf = (idx) => (rects && idx != null && rects[idx]) ? rects[idx].map(b => ({ points: ptsOf(b) })) : null;
+      vals.hoverOutline = outlineOf(hoveredIdx);
+      vals.mopShapes = (bCfg ? (fp.mop || []) : (this.planMop[id] || [])).map(b => ({ points: ptsOf(b) }));
+      vals.planFloorTabs = bCfg ? bCfg.floors.map((f, i) => ({ label: f.label,
+        border: i === fi ? '#a3312b' : '#c3bdb0', bg: i === fi ? '#a3312b' : 'transparent', color: i === fi ? '#fffdf9' : '#948f83',
+        onClick: () => this.setState({ floorIdx: i, zoomHoverIdx: null }) })) : null;
+      {
+        // порядок карточек зафиксирован: в аренде → в простое → не введено → продано
+        list.forEach((x, i) => { if (x._i === undefined) x._i = i; });
+        list.sort((a, b) => this.unitRank(a) - this.unitRank(b) || a._i - b._i);
+        const fs = list.findIndex((x) => /Продано/i.test(String(x.status || '')));
+        // непроданные — одной строкой, проданные — по две в ряд с новой строки
+        list.forEach((x, i) => {
+          const sold = /Продано/i.test(String(x.status || ''));
+          x.colStart = (fs >= 0 && i === fs) ? '1' : 'auto';
+          x.rowBreak = fs >= 0 && i === fs;
+          x.cardFlex = '0 0 300px';
+        });
+      }
+      vals.selectedInfo = { name: this.names[id], rnv: this.rnv[id], commercial: list.length, units: area > 0 ? fmtArea(area) : null,
+        statusChips: (() => {
+          const m = {};
+          for (const u of (this.units[id] || [])) { const s = this.unitStatus(id, u); if (!m[s]) m[s] = { n: 0, a: 0 }; m[s].n++; const n = parseFloat(String(u.area).replace(',', '.')); if (isFinite(n)) m[s].a += n; }
+          return Object.keys(m).map(s => { const c = this.chip(s); return { label: s, count: m[s].n, area: m[s].a.toFixed(1).replace('.', ',') + ' м²', bg: c.chipBg, fg: c.chipFg, bd: c.chipBd }; });
+        })(),
+        commercialLabel: (String(id).startsWith('zu') || String(id).startsWith('stop')) ? 'Мест в аренду' : 'Коммерческих помещений',
+        addr: ((this.literAddr && this.literAddr[String(id).split('_')[0]]) || (bCfg ? bCfg.addr : null)),
+        uk: (this.literUk && this.literUk[String(id).split('_')[0]]) || null, tenants: (() => { const r = (this.tenantsReg[id] || []).filter(t => !t.unit); return r.length ? r : null; })(),
+        planLabel: bCfg ? 'Поэтажный план' : 'Поэтажный план · 1 этаж (подъезд)',
+        planNote: bCfg ? 'Планы из техпаспорта. Кликните по плану, чтобы увеличить' : 'Серым выделены места общего пользования (МОП): лестницы, лифты, коридоры. Наведите на карточку помещения — его контур подсветится на плане',
+        unitsList: list.map((u, i, arr) => ({ ...u,
+          rowBreak: arr.findIndex((x) => /Продано/i.test(String(x.status || ''))) === i,
+          cardFlex: '0 0 300px',
+          onEnter: () => { const tf = bCfg ? bCfg.floors.findIndex(f => f.boxes && f.boxes[i]) : -1; this.setState(tf >= 0 && tf !== fi ? { hoveredUnitIdx: i, floorIdx: tf } : { hoveredUnitIdx: i }); }, onLeave: () => this.setState({ hoveredUnitIdx: null }) })),
+        planImg: fp ? fp.img : null, planAspect: fp ? `${Math.round(fp.ratio * 1000)} / 1000` : null, highlightBoxes };
+      if (vals.selectedInfo) {
+        const un = (vals.selectedInfo.unitsList || []);
+        vals.selectedInfo.unitsUnsold = un.filter((u) => !/Продано/i.test(String(u.status || '')));
+        const so = un.filter((u) => /Продано/i.test(String(u.status || '')));
+        vals.selectedInfo.unitsSold = so.length ? so : null;
+      }
+      vals.openPlanZoom = () => this.setState({ planZoom: true });
+      this.cardsScrollVals(vals);
+      vals.planZoomImg = (this.state.planZoom && fp) ? fp.img : null;
+      vals.stopProp = (e) => e.stopPropagation();
+      {
+        const zi = this.state.zoomHoverIdx;
+        const zoomUnits = this.units[id] || [];
+        vals.zoomHoverZones = rects ? rects.map((grp, idx) => { if (!grp) return { left: '0%', top: '0%', w: '0%', h: '0%' }; const bb = bboxOf(grp[0]); return {
+          left: bb.l + '%', top: bb.t + '%', w: bb.w + '%', h: bb.h + '%',
+          onHover: () => this.setState({ zoomHoverIdx: idx }), onUnhover: () => this.setState({ zoomHoverIdx: null }) }; }) : null;
+        vals.zoomPins = centers ? centers.map((c, idx) => ({ ...c, opacity: zi === idx ? 1 : 0 })) : null;
+        vals.zoomOutline = outlineOf(zi);
+        if (zi != null && rects && rects[zi] && zoomUnits[zi]) {
+          const bb = bboxOf(rects[zi][0]);
+          const above = bb.t > 18;
+          vals.zoomTooltip = { ...zoomUnits[zi], status: this.unitStatus(id, zoomUnits[zi]), left: (bb.l + bb.w / 2) + '%',
+            top: (bb.t + bb.h / 2) + '%',
+            tf: 'translate(-50%, -50%)', mt: '0px' };
+        } else { vals.zoomTooltip = null; }
+      }
+      vals.planZoomAspect = fp ? `${Math.round(fp.ratio * 1000)} / 1000` : null;
+      vals.planZoomW = fp ? `min(92vw, calc(88vh * ${fp.ratio.toFixed(4)}))` : '92vw';
+    } else {
+      vals.selectedInfo = null;
+      vals.planZoomImg = null;
+    }
+    vals.closePlanZoom = () => this.setState({ planZoom: false, zoomHoverIdx: null });
+
+    // карта трафика
+    vals.trafficVisible = !!this.state.trafficOverlay;
+    vals.trafficPanelVisible = !!this.state.trafficData;
+    vals.trafficHidePanel = () => this.setState({ trafficData: false });
+    vals.trafficOverlayBg = this.state.trafficOverlay ? '#a3312b' : 'transparent';
+    vals.trafficOverlayFg = this.state.trafficOverlay ? '#ffffff' : '#a3312b';
+    vals.trafficDataBg = this.state.trafficData ? '#a3312b' : 'transparent';
+    vals.trafficDataFg = this.state.trafficData ? '#ffffff' : '#a3312b';
+    vals.toggleTrafficOverlay = () => this.setState((s) => ({ trafficOverlay: !s.trafficOverlay }));
+    vals.toggleTrafficData = () => this.setState((s) => ({ trafficData: !s.trafficData }));
+    {
+      const tr = (window.OMTraffic && (this.state.trafficOverlay || this.state.trafficData)) ? window.OMTraffic.build(this, vals) : null;
+      vals.trafficMarks = tr ? tr.marks : [];
+      vals.trafficLines = tr ? tr.lines : [];
+      // площадки НТО со схемы 01.04.2026 (nto_pads.js)
+      vals.ntoPads = window.OMNto ? window.OMNto.vals(this, 'assets/genplan_samolet2.png') : [];
+      vals.ntoLabels = vals.ntoPads.labels || [];
+      vals.ntoTip = vals.ntoPads.tip || null;
+      vals.trafficMagnets = tr ? tr.magnets : [];
+      vals.trafficVacancies = tr ? tr.vacancies : [];
+      vals.trafficStats = tr ? tr.stats : [];
+      vals.trafficNote = tr ? tr.note : '';
+    }
+
+    vals.toggleSummary = () => this.toggleSummary();
+    vals.enterSummary = () => this.setState({ summaryHovered: true });
+    vals.leaveSummary = () => this.setState({ summaryHovered: false });
+    vals.summaryVisible = this.state.summaryHovered || this.state.summaryPinned;
+
+    {
+      let totalCount = 0, totalArea = 0, soldCount = 0, soldArea = 0, soldSum = 0,
+        dvkCount = 0, dvkArea = 0, leasedCount = 0, leasedArea = 0, rentedCount = 0, rentedArea = 0;
+      for (const key in this.units) {
+        for (const u of this.units[key]) {
+          const area = parseFloat(u.area.replace(',', '.'));
+          const price = parseFloat((u.price || '').replace(/[^\d]/g, '')) || 0;
+          totalCount++; totalArea += area;
+          if (u.status === 'Продано') { soldCount++; soldArea += area; soldSum += price; }
+          else if (this.isLeasedStatus(u.status) && this.isFund(u)) { dvkCount++; dvkArea += area; }
+          else if (this.isLeasedStatus(u.status)) { leasedCount++; leasedArea += area; }
+          else if (this.isVacantStatus(u.status)) { rentedCount++; rentedArea += area; }
+        }
+      }
+      vals.totalCount = totalCount; vals.totalArea = fmtArea(totalArea);
+      vals.soldCount = soldCount; vals.soldArea = fmtArea(soldArea);
+      vals.soldSum = Math.round(soldSum).toLocaleString('ru-RU') + ' ₽';
+      vals.soldAvgSqm = soldArea ? Math.round(soldSum / soldArea).toLocaleString('ru-RU') + ' ₽/м²' : '—';
+      vals.dvkCount = dvkCount; vals.dvkArea = fmtArea(dvkArea);
+      vals.leasedCount = leasedCount; vals.leasedArea = fmtArea(leasedArea);
+      vals.rentedCount = rentedCount; vals.rentedArea = fmtArea(rentedArea);
+      vals.soldSharePct = totalArea ? Math.round((soldArea / totalArea) * 100) + '%' : '—';
+      vals.rentedSharePct = totalArea ? Math.round((rentedArea / totalArea) * 100) + '%' : '—';
+
+      const m = {};
+      for (const key in this.units) for (const u of this.units[key]) {
+        if (!this.isVacantStatus(u.status)) continue;
+        if (!m[u.liq]) m[u.liq] = { count: 0, area: 0 };
+        m[u.liq].count++; m[u.liq].area += parseFloat(u.area.replace(',', '.'));
+      }
+      vals.liqRented = Object.keys(m).map(l => `${l}: ${m[l].count} (${fmtArea(m[l].area)})`);
+    }
+
+    vals.problemsVisible = this.state.problemsVisible;
+    vals.toggleProblems = () => this.setState(s => ({ problemsVisible: !s.problemsVisible }));
+    vals.efficiencyVisible = this.state.efficiencyVisible;
+    vals.toggleEfficiency = () => this.setState(s => ({ efficiencyVisible: !s.efficiencyVisible }));
+    this.occupancyVals(vals);
+
+    {
+      const vacant = [];
+      for (const key in this.units) for (const u of this.units[key]) {
+        if (this.isVacantStatus(u.status)) vacant.push(`${this.names[key]} №${u.number} (${u.area}) — ${u.status}`);
+      }
+      vals.vacantColor = vacant.length ? '#a3312b' : '#3a7a42';
+      vals.vacantText = vacant.length ? `Нарушение: ${vacant.length} пустующих помещений` : 'Нарушение отсутствует — пустующих помещений нет';
+      vals.vacantList = vacant;
+
+      const vacUnits = [];
+      for (const key in this.units) for (const u of this.units[key]) {
+        if (this.isVacantStatus(u.status)) vacUnits.push({ number: u.number, area: u.area, location: this.names[key], areaNum: parseFloat(u.area.replace(',', '.')) });
+      }
+      vacUnits.sort((a, b) => b.areaNum - a.areaNum);
+      vals.topRented = vacUnits.slice(0, 5);
+
+      const catOf = (company) => {
+        if (/ЛИЧНЫЙ ФОНД|Морозов|ПРОФИТ КАПИТАЛ/.test(company)) return 'Владельцы (фонды, ПИФ, физлица)';
+        if (/^ИП /.test(company)) return 'ИП';
+        return 'Компании';
+      };
+      const cats = {};
+      for (const key in this.units) for (const u of this.units[key]) {
+        if (!u.company) continue;
+        const cat = catOf(u.company);
+        if (!cats[cat]) cats[cat] = { count: 0, area: 0 };
+        cats[cat].count++; cats[cat].area += parseFloat(u.area.replace(',', '.'));
+      }
+      vals.tenantCategories = Object.keys(cats).map(c => `${c}: ${cats[c].count} (${this.fmtArea(cats[c].area)})`);
+    }
+
+    vals.openTotal = () => this.openSummaryFilter('total', 'Все коммерческие помещения');
+    vals.openSold = () => this.openSummaryFilter('sold', 'Проданные помещения');
+    vals.openDvk = () => this.openSummaryFilter('dvk', 'Передано в ДВК (личные фонды)');
+    vals.openLeased = () => this.openSummaryFilter('leased', 'Сдано в аренду');
+    vals.openRented = () => this.openSummaryFilter('vacant', 'Вакантные / в простое');
+    vals.closeSummaryFilter = () => this.setState({ summaryFilter: null, summaryPinned: true });
+    if (this.state.summaryFilter) {
+      const key = this.state.summaryFilter.key;
+      const pred = key === 'total' ? (() => true)
+        : key === 'sold' ? (u => u.status === 'Продано')
+        : key === 'dvk' ? (u => this.isLeasedStatus(u.status) && this.isFund(u))
+        : key === 'leased' ? (u => this.isLeasedStatus(u.status) && !this.isFund(u))
+        : (u => this.isVacantStatus(u.status));
+      const list = [];
+      for (const bkey in this.units) for (const u of this.units[bkey]) {
+        if (pred(u)) list.push({ ...u, location: this.names[bkey],
+          status: this.unitStatus(bkey, u),
+          liqColor: this.liqColors[u.liq] || 'transparent',
+          strike: u.status === 'Продано' ? 'line-through' : 'none',
+          role: this.isFund(u) ? 'Владелец' : (this.isLeasedStatus(u.status) ? 'Арендатор' : 'Правообладатель') });
+      }
+      vals.summaryFilterInfo = { label: this.state.summaryFilter.label, list };
+    } else {
+      vals.summaryFilterInfo = null;
+    }
+
+    this.summaryExtra(vals);
+    return vals;
+  }
+
+  planColors = ['#c0392b','#2471a3','#1e8449','#b7770d','#8e44ad','#0e8686','#7b4a12','#5d6d7e','#a3312b','#2e4053'];
+
+  // указатели «актива» — по одному на непроданное помещение, со стороны входа
+  buildActiveMarks() {
+    if (!this.state.showActive) return [];
+    const PAL = {
+      red: { c: '#a3312b', lite: '#c4645e', dark: '#7d2521', glow: 'rgba(163, 49, 43, 0.7)' },
+      green: { c: '#3a7a42', lite: '#6aa370', dark: '#27562d', glow: 'rgba(58, 122, 66, 0.7)' },
+      black: { c: '#2e2a24', lite: '#5c564d', dark: '#141210', glow: 'rgba(46, 42, 36, 0.6)' },
+    };
+    const ROT = { left: '0deg', right: '180deg', top: '90deg', bottom: '270deg' };
+    const out = [];
+    this._storefronts = [];
+    for (const k of Object.keys(this.polys)) {
+      const all = this.units[k] || [];
+      const poly = this.polys[k];
+      if (!all.length || !poly) continue;
+      const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]);
+      const bx0 = Math.min(...xs), bx1 = Math.max(...xs), by0 = Math.min(...ys), by1 = Math.max(...ys);
+      const boxes = this.planBoxes[k];
+      const rows = [];
+      all.forEach((u, gi) => {
+        if (u.status === 'Продано') return;
+        const shp = boxes && boxes[gi] && boxes[gi][0];
+        let cx = null, cy = null, bb = null;
+        if (shp) {
+          if (shp.poly) {
+            const px = shp.poly.map(p => p[0]), py = shp.poly.map(p => p[1]);
+            bb = { x0: Math.min(...px), x1: Math.max(...px), y0: Math.min(...py), y1: Math.max(...py) };
+          } else { bb = { x0: shp.l, x1: shp.l + shp.w, y0: shp.t, y1: shp.t + shp.h }; }
+          cx = (bb.x0 + bb.x1) / 2; cy = (bb.y0 + bb.y1) / 2;
+        }
+        rows.push({ u, gi, cx, cy, bb });
+      });
+      rows.forEach((r, i) => { if (r.cy == null) { r.cx = 50; r.cy = (i + 0.5) / rows.length * 100; } });
+      const buckets = { left: [], right: [], top: [], bottom: [] };
+      const forced = this.entrySide[k];
+      rows.forEach((r) => {
+        const num = String(r.u.number).split(',')[0].trim();
+        const own = this.entrySide[k + '#' + num] || forced;
+        if (own) { buckets[own].push(r); return; }
+        const d = { left: r.cx, right: 100 - r.cx, top: r.cy, bottom: 100 - r.cy };
+        let side = 'left';
+        for (const s of ['right', 'top', 'bottom']) if (d[s] < d[side]) side = s;
+        buckets[side].push(r);
+      });
+      const rnvD = this.rnv[k] ? (() => { const p = String(this.rnv[k]).split('.').map(Number); return new Date(p[2], p[1] - 1, p[0]); })() : null;
+      const building = rnvD && rnvD > new Date();
+      for (const side of ['left', 'right', 'top', 'bottom']) {
+        const arr = buckets[side];
+        if (!arr.length) continue;
+        const vertical = side === 'left' || side === 'right';
+        arr.sort((a, b) => (vertical ? a.cy - b.cy : a.cx - b.cx));
+        let prev = -99;
+        arr.forEach((r) => {
+          let along = vertical ? by0 + r.cy / 100 * (by1 - by0) : bx0 + r.cx / 100 * (bx1 - bx0);
+          const gap = vertical ? 2.1 : 2.6;
+          if (along - prev < gap) along = prev + gap;
+          prev = along;
+          const num = String(r.u.number).split(',')[0].trim();
+          const nd = this.entryNudge[k + '#' + num] || this.entryNudge[k] || [0, 0];
+          const x = (side === 'left' ? bx0 - 1.5 : side === 'right' ? bx1 + 1.5 : along) + nd[0];
+          const y = (side === 'top' ? by0 - 2.6 : side === 'bottom' ? by1 + 2.6 : along) + nd[1];
+          const st = this.unitStatus(k, r.u);
+          const pal = (building || /Не введено/i.test(st)) ? PAL.black : /аренде/i.test(st) ? PAL.green : PAL.red;
+          const tipR = (this.tenantsReg[k] || []).find(t => t.unit && String(r.u.number).split(',')[0].trim() === t.unit) || null;
+          const tipRate = (tipR && this.ratePick) ? (this.ratePick(tipR) || {}).rate : null;
+          const tipName = tipR ? ((tipR.brand && tipR.brand !== '—') ? tipR.brand : tipR.tenant) : null;
+          const tip = 'Пом. ' + String(r.u.number).split(',')[0].trim() + ' · ' + (r.u.area || '')
+            + (tipName ? ' · ' + tipName : ' · нет арендатора')
+            + ' · ставка: ' + (tipRate || 'нет данных') + ' · ' + st;
+          // витрина окрашена по категории арендатора (traffic.js), пустая — чёрным
+          const sfCat = (tipR && window.OMTraffic && window.OMTraffic.catOf) ? window.OMTraffic.catOf(tipR) : null;
+          const sfColor = tipR ? ((sfCat && sfCat.c) || '#4b2e83') : '#a3312b';
+          const sfTip = tip + (sfCat ? ' · категория: ' + sfCat.name : '');
+          out.push({ pe: 'auto', tip, onTip: () => this.setState({ activeTip: { text: tip, left: x + '%', top: y + '%' } }), offTip: () => this.setState({ activeTip: null }), key: k + '_' + r.gi, left: x + '%', top: y + '%', rot: 'rotate(' + ROT[side] + ')',
+            c: pal.c, lite: pal.lite, dark: pal.dark, glow: pal.glow });
+          // витрина: протяжённость помещения вдоль фасада берём из поэтажного плана
+          // (контур помещения в % кропа) и проецируем на соответствующее ребро подъезда
+          if (r.bb) {
+            const to = (v) => (vertical ? by0 + v / 100 * (by1 - by0) : bx0 + v / 100 * (bx1 - bx0));
+            let a0 = to(vertical ? r.bb.y0 : r.bb.x0), a1 = to(vertical ? r.bb.y1 : r.bb.x1);
+            const minLen = (vertical ? (by1 - by0) : (bx1 - bx0)) * 0.12;
+            if (a1 - a0 < minLen) { const mid = (a0 + a1) / 2; a0 = mid - minLen / 2; a1 = mid + minLen / 2; }
+            a0 = Math.max(vertical ? by0 : bx0, a0); a1 = Math.min(vertical ? by1 : bx1, a1);
+            const ins = 0.3;
+            const fx = side === 'left' ? bx0 + ins : bx1 - ins;
+            const fy = side === 'top' ? by0 + ins : by1 - ins;
+            const toX = (v) => bx0 + v / 100 * (bx1 - bx0);
+            const toY = (v) => by0 + v / 100 * (by1 - by0);
+            // угловое помещение выходит на две наружные стены — витрину рисуем углом
+            const dd = { left: r.bb.x0, right: 100 - r.bb.x1, top: r.bb.y0, bottom: 100 - r.bb.y1 };
+            const perp = vertical ? ['top', 'bottom'] : ['left', 'right'];
+            const sec = perp.reduce((a, b) => (dd[b] < dd[a] ? b : a));
+            const corner = null; // углы витрин отключены — ищем более аккуратную геометрию
+            const f2 = (a, b) => a.toFixed(2) + ',' + b.toFixed(2);
+            const sfPoints = (() => {
+              if (!corner) return vertical ? (f2(fx, a0) + ' ' + f2(fx, a1)) : (f2(a0, fy) + ' ' + f2(a1, fy));
+              const cl = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+              if (vertical) {
+                const cy = corner === 'top' ? by0 + ins : by1 - ins;
+                const far = cl(side === 'left' ? toX(r.bb.x1) : toX(r.bb.x0), bx0 + ins, bx1 - ins);
+                return f2(fx, corner === 'top' ? a1 : a0) + ' ' + f2(fx, cy) + ' ' + f2(far, cy);
+              }
+              const cx2 = corner === 'left' ? bx0 + ins : bx1 - ins;
+              const far = cl(side === 'top' ? toY(r.bb.y1) : toY(r.bb.y0), by0 + ins, by1 - ins);
+              return f2(corner === 'left' ? a1 : a0, fy) + ' ' + f2(cx2, fy) + ' ' + f2(cx2, far);
+            })();
+            this._storefronts.push({ tip: sfTip,
+                onTip: () => this.setState({ activeTip: { text: sfTip,
+                  left: (vertical ? fx : (a0 + a1) / 2) + '%', top: (vertical ? (a0 + a1) / 2 : fy) + '%' } }),
+                offTip: () => this.setState({ activeTip: null }),
+                key: 'sf_' + k + '_' + r.gi, c: sfColor,
+                cat: tipR ? ((sfCat && sfCat.name) || 'Прочее') : 'Свободно',
+              points: sfPoints });
+          }
+        });
+      }
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>

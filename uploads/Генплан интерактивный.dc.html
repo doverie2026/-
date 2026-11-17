@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body { margin: 0; background: #f4f2ee; }
+  a { color: #a3312b; }
+  a:hover { color: #7a241d; }
+</style>
+</helmet>
+<div style="max-width: 1700px; margin: 0 auto; padding: 24px; font-family: Georgia, 'Times New Roman', serif; color: #2b2a27; display: flex; gap: 20px; align-items: flex-start;">
+ <div style="flex: 1; min-width: 0;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+    <div style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid #2b2a27; background: #2b2a27; color: #f4f2ee;">ЖК «Рекорд»</div>
+    <a href="Генплан Самолет 1 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #ddd8cd; background: transparent; color: #6b6a64;">ЖК «Самолёт 1»</a>
+    <a href="Генплан Самолет 2 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #ddd8cd; background: transparent; color: #6b6a64;">ЖК «Самолёт 2»</a>
+    <a href="Генплан Самолет 3 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #ddd8cd; background: transparent; color: #6b6a64;">ЖК «Самолёт 3»</a>
+    <a href="Генплан Самолет 4 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 4»</a>
+    <a href="Генплан Самолет 5 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 5»</a>
+    <a href="Генплан Самолет 6 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 6»</a>
+    <a href="Матрица ЖК Самолет.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">Матрица ЖК «Самолёт»</a>
+  </div>
+  <div style="margin-bottom: 16px; position: relative;">
+    <div style="font-size: 28px; font-weight: 700; letter-spacing: 0.5px;">ЖК «Рекорд» — интерактивный генплан</div>
+    <div style="font-size: 15px; color: #6b6a64; margin-top: 4px;">Наведите курсор на подъезд, чтобы увидеть краткую информацию, кликните — чтобы увидеть список помещений</div>
+    <div style="display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: #a3312b; border: 1px solid #a3312b; border-radius: 4px; padding: 5px 12px; cursor: pointer;" onMouseEnter="{{ enterSummary }}" onMouseLeave="{{ leaveSummary }}" onClick="{{ toggleSummary }}">Сводка по ЖК</div>
+    <sc-if value="{{ summaryVisible }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; top: 100%; left: 0; z-index: 10; max-width: calc(100vw - 48px); overflow-x: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); padding: 24px 30px; margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px;">
+          <div style="font-size: 17px; font-weight: 700; color: #2b2a27;">Сводка по ЖК</div>
+          <div style="font-size: 11px; color: #948f83;">Данные на 28.07.2026</div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Статус в ДВК</div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0; border-top: 3px solid #c3bdb0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">Всего помещений</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openTotal }}">{{ totalCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ totalArea }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0; border-top: 3px solid #c3bdb0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">Продано</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openSold }}">{{ soldCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ soldArea }}</div>
+            <div style="font-size: 10px; font-weight: 700; color: #2b2a27; margin-top: 4px; white-space: nowrap;">сумма продаж: {{ soldDduSum }}</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 2px; white-space: nowrap;">средняя цена: {{ soldAvgSqm }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #faf0ee; border-top: 3px solid #a3312b;">
+            <div style="font-size: 11px; color: #a3312b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Не передано в ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #a3312b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openNotDelivered }}">{{ notDeliveredCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ notDeliveredArea }}</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 2px; white-space: nowrap; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openUsedByGk }}">справочно, в пользовании ГК: 1 (152.6 м²)</div>
+            <sc-for list="{{ notDeliveredAging }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #a3312b; margin-top: 4px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+            <sc-for list="{{ notDeliveredNotBuilt }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #a3312b; margin-top: 2px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #eef6ee; border-top: 3px solid #3a7a42;">
+            <div style="font-size: 11px; color: #3a7a42; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">Передано в ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #3a7a42; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openDelivered }}">{{ deliveredCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ deliveredArea }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #fbf3e6; border-top: 3px solid #c98a2b;">
+            <div style="font-size: 11px; color: #c98a2b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700;">В процессе передачи в ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #c98a2b; cursor: pointer;" style-hover="opacity: 0.75;" onClick="{{ openInProgress }}">{{ inProgressCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ inProgressArea }}</div>
+            <div style="font-size: 10px; font-weight: 700; color: #c98a2b; margin-top: 4px; white-space: nowrap;">сумма по ДДУ: {{ inProgressDduSum }}</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 2px; white-space: nowrap; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openUsedByGk }}">справочно, в пользовании ГК: 1 (197.9 м²)</div>
+            <sc-for list="{{ inProgressAging }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #c98a2b; margin-top: 2px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+            <sc-for list="{{ inProgressNotBuilt }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #c98a2b; margin-top: 2px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px;">Использование</div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0; border-top: 3px solid #c98a2b;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">В аренде от ГК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openRentedGk }}">{{ rentedGkCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ rentedGkArea }}</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0; border-top: 3px solid #3a7a42;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">В аренде от ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27;">{{ rentedDvkCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ rentedDvkArea }}</div>
+            <sc-for list="{{ rentedDvkAging }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #948f83; margin-top: 2px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #faf0ee; border-top: 3px solid #a3312b;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">В простое у ДВК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openIdleDvk }}">{{ idleDvkCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ idleDvkArea }}</div>
+            <div style="font-size: 10px; font-weight: 700; color: #a3312b; margin-top: 4px; white-space: nowrap;">невозмещаемые коммунальные платежи: 0 ₽/мес</div>
+            <sc-for list="{{ idleDvkAging }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #a3312b; margin-top: 2px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+            <sc-for list="{{ idleDvkNotBuilt }}" as="line" hint-placeholder-count="0">
+              <div style="font-size: 10px; color: #a3312b; margin-top: 2px; white-space: nowrap;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0; border-top: 3px solid #c3bdb0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">В пользовании ГК</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openUsedByGk }}">{{ usedByGkCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ usedByGkArea }}</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 4px; white-space: nowrap;">{{ usedByGkDaysNote }}</div>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px;">Стройка и контроль</div>
+        <div style="display: flex; align-items: stretch; gap: 10px; width: 1040px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0; border-top: 3px solid #c3bdb0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">Непостроенные помещения</div>
+            <div style="white-space: nowrap;"><span style="font-size: 26px; font-weight: 700; color: #2b2a27; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openNotBuilt }}">{{ notBuiltCount }}</span></div>
+            <div style="font-size: 12px; color: #948f83; margin-top: 2px;">{{ notBuiltArea }}</div>
+          </div>
+          <div style="display: flex; align-items: center; position: relative; flex: 1;">
+            <div style="padding: 14px 22px; border-radius: 8px; background: #a3312b; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; width: 100%; text-align: center; box-sizing: border-box;" style-hover="opacity: 0.85;" onClick="{{ toggleProblems }}">Проблемы</div>
+            <sc-if value="{{ problemsVisible }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 20; min-width: 340px; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 14px 18px;">
+                <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">Проблемы по ЖК</div>
+                <div style="font-size: 13px; color: #2b2a27; padding: 6px 0; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openOskProblem }}">1. Нарушение графика строительства ОСК</div>
+                <div style="font-size: 13px; color: #2b2a27; padding: 6px 0; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openTransferProblem }}">2. Не активна процедура передачи в ДВК при наличии РНВ</div>
+                <div style="font-size: 13px; color: #2b2a27; padding: 6px 0; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openNoTenantProblem }}">3. Отсутствие арендатора по истечении 6 месяцев с даты РНВ</div>
+                <div style="font-size: 13px; color: #2b2a27; padding: 6px 0; cursor: pointer;" style-hover="color: #a3312b;" onClick="{{ openDebtProblem }}">4. Дебиторская задолженность свыше ежемесячной платы дольше 2 месяцев</div>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display: flex; align-items: center; position: relative; flex: 1;">
+            <div style="padding: 14px 22px; border-radius: 8px; background: #2b2a27; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; width: 100%; text-align: center; box-sizing: border-box;" style-hover="opacity: 0.85;" onClick="{{ toggleEfficiency }}">Маркеры эффективности</div>
+            <sc-if value="{{ efficiencyVisible }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 20; min-width: 460px; max-height: 70vh; overflow-y: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 16px 20px;">
+                <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;">Маркеры эффективности УК</div>
+
+                <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 6px;">Заполняемость и вакантность</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Помещения в аренде от ДВК / переданные в ДВК × 100%">Заполняемость по помещениям (occupancy rate): {{ occupancyRate }}</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Площадь в аренде от ДВК / площадь переданных в ДВК × 100%">Заполняемость по площади (occupancy rate): {{ occupancyRateArea }}</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 10px; cursor: help;" title="Фактически полученная арендная плата / потенциальная арендная плата при 100% занятости по рыночным ставкам × 100%">Экономическая заполняемость (economic occupancy): —</div>
+
+                <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 6px;">Финансовая эффективность</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Фактически собранная арендная плата / начисленная арендная плата × 100%">Собираемость платежей (collection rate): — (нет данных о начислениях/сборах)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Доход от эксплуатации минус операционные расходы; NOI margin = NOI / валовой доход × 100%">Чистый операционный доход (NOI / NOI margin): — (нет данных по расходам)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Операционные расходы / валовой доход × 100%">Доля операционных расходов (operating expense ratio): — (нет данных по расходам)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 10px; cursor: help;" title="Фактическая ставка аренды минус рыночная ставка аренды">Фактическая ставка vs рыночная (effective rent vs market rent): — (ожидаются данные о фактической и рыночной ставке для расчёта)</div>
+
+                <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 6px;">Эффективность сдачи в аренду</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Среднее число дней, в течение которых помещение простаивает до заключения нового договора аренды">Срок сдачи вакансии (days/time to lease): — (нет истории вакансий)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Retention = число продливших договор арендаторов / число арендаторов с истёкшим сроком × 100%; turnover — обратный показатель">Удержание/текучесть арендаторов (tenant retention / turnover rate): — (нет истории аренды)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Число продлённых договоров / число договоров с истёкшим сроком × 100%">Доля продлений договоров (lease renewal rate): — (нет данных)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Средний % увеличения арендной ставки при плановой индексации по договорам; сумма — фактически начисленная за счёт индексации арендная плата">Индексации по договорам: — (нет данных о %, сумма — ₽)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 10px; cursor: help;" title="Средний % скидки от базовой ставки, предоставленной арендаторам; сумма — фактически предоставленная скидка в рублях">Скидки по договорам, в том числе за счёт дополнительных арендных каникул: — (нет данных о %, сумма — ₽)</div>
+
+                <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 6px;">Затраты на управление</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Плата за управление / фактически собранная арендная плата × 100%">Плата за управление, % от собранной аренды (management fee): — (ожидаются данные о затратах на управление для расчёта)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 4px; cursor: help;" title="Сумма комиссий за поиск и заключение договоров с арендаторами">Комиссии за поиск арендаторов (leasing commissions): — (нет данных)</div>
+                <div style="font-size: 12px; color: #948f83; margin-bottom: 10px; cursor: help;" title="Затраты на капремонт/ремонт / балансовая стоимость объекта × 100%; сумма — фактические затраты на ремонт">Доля затрат на ремонт (capex/repairs ratio): — (нет данных о доле, сумма — ₽)</div>
+
+
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 18px 0 8px; padding-top: 16px; border-top: 1px solid #ede9e0;">Финансы</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); width: 1040px; gap: 10px;">
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Арендная плата с начала года</div>
+            <div style="font-size: 18px; font-weight: 700; color: #2b2a27; white-space: nowrap;">0</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 4px; white-space: nowrap;">справочно по прайсу: 28 711 600 ₽/мес · достижение 0%</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Плата за управление с начала года</div>
+            <div style="font-size: 18px; font-weight: 700; color: #2b2a27; white-space: nowrap;">0</div>
+            <div style="font-size: 10px; color: #948f83; margin-top: 4px; white-space: nowrap;">справочно, ООО «НПК»: 1 032 665 ₽/мес · достижение 0%</div>
+          </div>
+          <div style="padding: 14px 18px; border-radius: 8px; background: #f7f5f0;">
+            <div style="font-size: 11px; color: #948f83; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Дебиторская задолженность</div>
+            <div style="font-size: 18px; font-weight: 700; color: #c3bdb0; white-space: nowrap;">—</div>
+          </div>
+        </div>
+
+
+
+        <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid #ede9e0; display: grid; grid-template-columns: repeat(4, 1fr); width: 1040px; gap: 12px;">
+          <div style="min-width: 0;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Топ-5 «зависших» помещений</div>
+            <sc-for list="{{ topStuck }}" as="s" hint-placeholder-count="5">
+              <div style="font-size: 12px; color: #2b2a27; margin-bottom: 4px;">{{ s.number }} · {{ s.location }} — <b>{{ s.days }}</b> дн.</div>
+            </sc-for>
+          </div>
+          <div style="min-width: 200px;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Ликвидность: не передано в ДВК</div>
+            <sc-for list="{{ notDeliveredLiq }}" as="line" hint-placeholder-count="2">
+              <div style="font-size: 12px; color: #2b2a27; margin-bottom: 4px;">{{ line }}</div>
+            </sc-for>
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 10px 0 8px;">Ликвидность: в процессе передачи</div>
+            <sc-for list="{{ inProgressLiq }}" as="line" hint-placeholder-count="3">
+              <div style="font-size: 12px; color: #2b2a27; margin-bottom: 4px;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="min-width: 200px;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Арендаторы по категориям</div>
+            <sc-for list="{{ tenantCategories }}" as="line" hint-placeholder-count="2">
+              <div style="font-size: 12px; color: #2b2a27; margin-bottom: 4px;">{{ line }}</div>
+            </sc-for>
+          </div>
+          <div style="min-width: 220px;">
+            <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 8px;">Долг/просрочка по арендаторам</div>
+            <sc-for list="{{ tenantDebts }}" as="t" hint-placeholder-count="4">
+              <div style="font-size: 12px; color: #2b2a27; margin-bottom: 4px;">{{ t.tenant }} ({{ t.location }}): {{ t.debt }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="position: relative; width: 100%; border: 1px solid #ddd8cd; border-radius: 6px; overflow: hidden; background: #fff;">
+    <img src="assets/genplan.png" alt="Генплан ЖК «Рекорд»" style="width: 100%; display: block;">
+    <sc-for list="{{ buildings }}" as="b" hint-placeholder-count="21">
+      <div style="position: absolute; left: {{ b.left }}; top: {{ b.top }}; width: {{ b.w }}; height: {{ b.h }}; transform: translate(-50%, -50%) rotate({{ b.rot }}deg); border: {{ b.border }}; border-radius: 4px; cursor: pointer;" onMouseEnter="{{ b.onEnter }}" onMouseLeave="{{ leave }}" onClick="{{ b.onClick }}"></div>
+    </sc-for>
+    <div style="position: absolute; left: 14.4%; top: 16.55%; transform: translate(-50%, -50%); font-size: 6px; font-weight: 700; color: #4a4740; pointer-events: none;">М1</div>
+    <sc-if value="{{ activeInfo }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; width: 230px; left: {{ activeInfo.left }}; top: {{ activeInfo.top }}; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); padding: 14px 16px; pointer-events: none; font-family: Georgia, 'Times New Roman', serif;">
+        <div style="font-size: 16px; font-weight: 700; color: #a3312b; margin-bottom: 6px;">{{ activeInfo.name }}</div>
+        <sc-if value="{{ activeInfo.rnv }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ activeInfo.rnvBuilt }}" hint-placeholder-val="{{ true }}">
+            <div style="font-size: 11px; font-weight: 700; color: #a3312b; text-align: right; margin-bottom: 6px;">Дата РНВ: {{ activeInfo.rnv }}</div>
+          </sc-if>
+          <sc-if value="{{ activeInfo.notBuilt }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11px; color: #a3312b; text-align: right; margin-bottom: 6px;"><b>Не построено</b> · прогноз РНВ: {{ activeInfo.rnv }}</div>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ activeInfo.commercial }}" hint-placeholder-val="{{ false }}">Коммерческих помещений: {{ activeInfo.commercial }}<br></sc-if>
+        {{ activeInfo.unitsLabel }}: {{ activeInfo.units }}<br>
+        <sc-for list="{{ activeInfo.statuses }}" as="line" hint-placeholder-count="2">
+          {{ line.text }}<sc-if value="{{ line.note }}" hint-placeholder-val="{{ false }}"> <span style="font-size: 9px; color: #a3312b; font-weight: 700;">({{ line.note }})</span></sc-if><br>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+ </div>
+
+ <sc-if value="{{ oskProblemInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; background: rgba(20,18,14,0.5); z-index: 900;" onClick="{{ closeOskProblem }}"></div>
+  <div style="position: fixed; top: 80px; right: 40px; z-index: 901; width: 380px; max-height: 80vh; overflow-y: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div style="font-size: 15px; font-weight: 700; color: #a3312b;">Нарушение графика строительства ОСК</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; padding: 0 4px;" onClick="{{ closeOskProblem }}">×</div>
+    </div>
+    <div style="font-size: 13px; color: #2b2a27; margin-bottom: 10px;">Ожидаемая дата РНВ по литерам К и М: <b>10.12.2026</b></div>
+    <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px; color: {{ oskProblemInfo.violated }};">{{ oskProblemInfo.violationText }}</div>
+    <sc-for list="{{ oskProblemInfo.units }}" as="loc" hint-placeholder-count="5">
+      <div style="font-size: 12px; color: #6b6a64; margin-bottom: 4px;">{{ loc.name }} — {{ loc.count }} помещений, {{ loc.area }}</div>
+    </sc-for>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ transferProblemInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; background: rgba(20,18,14,0.5); z-index: 900;" onClick="{{ closeTransferProblem }}"></div>
+  <div style="position: fixed; top: 80px; right: 40px; z-index: 901; width: 380px; max-height: 80vh; overflow-y: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div style="font-size: 15px; font-weight: 700; color: #a3312b;">Не активна процедура передачи в ДВК при наличии РНВ</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; padding: 0 4px;" onClick="{{ closeTransferProblem }}">×</div>
+    </div>
+    <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px; color: {{ transferProblemInfo.violated }};">{{ transferProblemInfo.violationText }}</div>
+    <sc-for list="{{ transferProblemInfo.units }}" as="u" hint-placeholder-count="5">
+      <div style="font-size: 12px; color: #6b6a64; margin-bottom: 4px;">{{ u.location }} — №{{ u.number }}, {{ u.area }}, РНВ {{ u.rnv }}</div>
+    </sc-for>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ noTenantProblemInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; background: rgba(20,18,14,0.5); z-index: 900;" onClick="{{ closeNoTenantProblem }}"></div>
+  <div style="position: fixed; top: 80px; right: 40px; z-index: 901; width: 380px; max-height: 80vh; overflow-y: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div style="font-size: 15px; font-weight: 700; color: #a3312b;">Отсутствие арендатора по истечении 6 месяцев с даты РНВ</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; padding: 0 4px;" onClick="{{ closeNoTenantProblem }}">×</div>
+    </div>
+    <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px; color: {{ noTenantProblemInfo.violated }};">{{ noTenantProblemInfo.violationText }}</div>
+    <sc-for list="{{ noTenantProblemInfo.units }}" as="u" hint-placeholder-count="5">
+      <div style="font-size: 12px; color: #6b6a64; margin-bottom: 4px;">{{ u.location }} — №{{ u.number }}, {{ u.area }}, РНВ {{ u.rnv }} ({{ u.days }} дн.)</div>
+    </sc-for>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ debtProblemInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; background: rgba(20,18,14,0.5); z-index: 900;" onClick="{{ closeDebtProblem }}"></div>
+  <div style="position: fixed; top: 80px; right: 40px; z-index: 901; width: 380px; max-height: 80vh; overflow-y: auto; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div style="font-size: 15px; font-weight: 700; color: #a3312b;">Дебиторская задолженность свыше ежемесячной платы дольше 2 месяцев</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; padding: 0 4px;" onClick="{{ closeDebtProblem }}">×</div>
+    </div>
+    <div style="font-size: 13px; color: #948f83;">{{ debtProblemInfo.note }}</div>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ selectedInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="width: 340px; flex-shrink: 0; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 20px; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+      <div style="font-size: 18px; font-weight: 700; color: #a3312b;">{{ selectedInfo.name }}</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; line-height: 1; padding: 2px 4px;" onClick="{{ closePanel }}">×</div>
+    </div>
+    <sc-if value="{{ selectedInfo.planImg }}" hint-placeholder-val="{{ false }}">
+      <div style="position: relative; margin-bottom: 12px;">
+        <img src="{{ selectedInfo.planImg }}" alt="Поэтажный план" style="width: 100%; border: 1px solid #ede9e0; border-radius: 4px; display: block; cursor: zoom-in;" onClick="{{ openPlanZoom }}">
+        <sc-for list="{{ selectedInfo.highlightBoxes }}" as="hb" hint-placeholder-count="5">
+          <svg viewBox="0 0 24 24" style="position: absolute; left: {{ hb.left }}; top: {{ hb.top }}; width: 32px; height: 32px; transform: translate(-50%, -100%); pointer-events: none; opacity: {{ hb.opacity }}; transition: opacity 0.1s; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));">
+            <path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#ffffff" stroke="#a3312b" stroke-width="1.5"></path>
+            <circle cx="12" cy="10" r="3" fill="#a3312b"></circle>
+          </svg>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ planZoomImg }}" hint-placeholder-val="{{ false }}">
+      <div style="position: fixed; inset: 0; background: rgba(20,18,14,0.82); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: zoom-out;" onClick="{{ closePlanZoom }}">
+        <div style="position: relative; display: inline-block; cursor: default;" onClick="{{ stopProp }}">
+          <img src="{{ planZoomImg }}" alt="Поэтажный план" style="display: block; max-width: 92vw; max-height: 92vh; box-shadow: 0 12px 40px rgba(0,0,0,0.4); border-radius: 4px;">
+          <sc-for list="{{ zoomHoverZones }}" as="z" hint-placeholder-count="5">
+            <div style="position: absolute; left: {{ z.left }}; top: {{ z.top }}; width: {{ z.w }}; height: {{ z.h }}; transform: translate(-50%, -100%); cursor: pointer;" onMouseEnter="{{ z.onHover }}" onMouseLeave="{{ z.onUnhover }}"></div>
+          </sc-for>
+          <sc-if value="{{ zoomTooltip }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; left: {{ zoomTooltip.left }}; top: {{ zoomTooltip.top }}; transform: translate(-50%, -100%); margin-top: -36px; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 10px 14px; min-width: 180px; pointer-events: none; z-index: 2;">
+              <div style="font-weight: 700; font-size: 13px; color: #2b2a27;">{{ zoomTooltip.number }} · {{ zoomTooltip.area }}</div>
+              <div style="font-size: 12px; color: #6b6a64; margin-top: 2px;">{{ zoomTooltip.status }}</div>
+              <sc-if value="{{ zoomTooltip.dduPrice }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size: 12px; color: #6b6a64; margin-top: 2px;">ДДУ: {{ zoomTooltip.dduPrice }}</div>
+              </sc-if>
+              <sc-if value="{{ zoomTooltip.tenant }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size: 12px; color: #6b6a64; margin-top: 2px;">{{ zoomTooltip.tenant }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ selectedInfo.rnv }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ selectedInfo.rnvBuilt }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size: 12px; font-weight: 700; color: #a3312b; margin-bottom: 12px;">Дата РНВ: {{ selectedInfo.rnv }}</div>
+      </sc-if>
+      <sc-if value="{{ selectedInfo.notBuilt }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size: 12px; color: #a3312b; margin-bottom: 12px;"><b>Не построено</b> · прогноз РНВ: {{ selectedInfo.rnv }}</div>
+      </sc-if>
+    </sc-if>
+    <div style="font-size: 13px; color: #6b6a64; margin-bottom: 12px;">Коммерческих помещений: {{ selectedInfo.commercial }} ({{ selectedInfo.units }})</div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ selectedInfo.unitsList }}" as="u" hint-placeholder-count="4">
+        <div style="border: 1px solid #ede9e0; border-radius: 4px; padding: 10px 12px; background: {{ u.liqColor }};" onMouseEnter="{{ u.onHover }}" onMouseLeave="{{ u.onUnhover }}">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; text-decoration: {{ u.strike }}; font-weight: 700;">
+            <div>{{ u.number }}</div><div style="font-weight: 400; color: #6b6a64;">{{ u.area }}</div>
+          </div>
+          <div style="text-decoration: {{ u.strike }}; margin-top: 2px; margin-bottom: 6px;">{{ u.status }}</div>
+          <sc-if value="{{ u.dduPrice }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 12px; color: #6b6a64; margin-bottom: 2px;">Цена по ДДУ: {{ u.dduPrice }}</div>
+            <div style="font-size: 12px; color: #6b6a64; margin-bottom: 6px;">Дольщик: {{ u.dolshchik }}</div>
+          </sc-if>
+          <sc-if value="{{ u.tenant }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 12px; color: #6b6a64; margin-bottom: 6px;">{{ u.tenant }} · {{ u.rate }}</div>
+          </sc-if>
+          <sc-if value="{{ u.notSold }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; font-size: 12px; color: #6b6a64; border-top: 1px solid #ede9e0; padding-top: 6px;">
+              <div>Управление</div><div>{{ u.mgmt }}</div>
+              <div>Плата за управление с начала года</div><div>0</div>
+              <sc-if value="{{ u.priceRefMgmt }}" hint-placeholder-val="{{ false }}">
+                <div style="grid-column: 1 / -1; font-size: 11px; color: #948f83; margin: -1px 0 2px;">Справочно, управление (ООО «НПК»): {{ u.priceRefMgmt }}</div>
+              </sc-if>
+              <div>Плата за аренду с начала года</div><div>0</div>
+              <sc-if value="{{ u.priceRefRent }}" hint-placeholder-val="{{ false }}">
+                <div style="grid-column: 1 / -1; font-size: 11px; color: #948f83; margin: -1px 0 2px;">Справочно, аренда по прайс-листу: {{ u.priceRefRent }}</div>
+              </sc-if>
+              <div>Долг за аренду на отчетную дату</div><div>—</div>
+              <div>Долг за управление на отчетную дату</div><div>—</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid #ede9e0; font-size: 11px; color: #6b6a64;">
+      <div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;">Ликвидность</div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #cdead9; flex-shrink: 0;"></span>Сверхликвидное</div>
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #b3b3ef; flex-shrink: 0;"></span>Высоколиквидное</div>
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #f6e6bd; flex-shrink: 0;"></span>Среднеликвидное</div>
+      </div>
+    </div>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ summaryFilterInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="width: 340px; flex-shrink: 0; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 20px; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <div style="font-size: 18px; font-weight: 700; color: #a3312b;">{{ summaryFilterInfo.label }}</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; line-height: 1; padding: 2px 4px;" onClick="{{ closeSummaryFilter }}">×</div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px 14px; font-size: 11px; color: #6b6a64; margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 11px; height: 11px; border-radius: 2px; background: #cdead9; flex-shrink: 0;"></span>Сверхликвидное</div>
+      <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 11px; height: 11px; border-radius: 2px; background: #b3b3ef; flex-shrink: 0;"></span>Высоколиквидное</div>
+      <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 11px; height: 11px; border-radius: 2px; background: #f6e6bd; flex-shrink: 0;"></span>Среднеликвидное</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ summaryFilterInfo.list }}" as="u" hint-placeholder-count="6">
+        <div style="border: 1px solid #ede9e0; border-radius: 4px; padding: 10px 12px; background: {{ u.liqColor }};">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-weight: 700;">
+            <div>{{ u.number }}</div><div style="font-weight: 400; color: #6b6a64;">{{ u.area }}</div>
+          </div>
+          <div style="font-size: 12px; color: #6b6a64; margin: 2px 0 4px;">{{ u.location }}</div>
+          <div>{{ u.displayStatus }}</div>
+          <sc-if value="{{ u.gkNote }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11px; font-weight: 700; color: #c98a2b; margin-top: 2px;">{{ u.gkNote }}</div>
+          </sc-if>
+          <sc-if value="{{ u.tt }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 12px; color: #6b6a64; margin-top: 2px;">{{ u.tt }}</div>
+          </sc-if>
+          <sc-if value="{{ u.rate }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 12px; color: #6b6a64; margin-top: 2px;">{{ u.rate }}</div>
+          </sc-if>
+          <sc-if value="{{ u.dolshchik }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 12px; color: #6b6a64; margin-top: 2px;">Дольщик: {{ u.dolshchik }}</div>
+          </sc-if>
+          <sc-if value="{{ u.priceRefRent }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11px; color: #948f83; margin-top: 2px;">Справочно, аренда по прайс-листу: {{ u.priceRefRent }}</div>
+          </sc-if>
+          <sc-if value="{{ u.priceRefMgmt }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11px; color: #948f83; margin-top: 2px;">Справочно, управление (ООО «НПК»): {{ u.priceRefMgmt }}</div>
+          </sc-if>
+          <sc-if value="{{ u.idleCost }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 11px; font-weight: 700; color: #a3312b; margin-top: 2px;">Невозмещаемые затраты на обслуживание: {{ u.idleCost }}</div>
+          </sc-if>
+          <sc-if value="{{ u.rnv }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ u.rnvNotBuilt }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size: 11px; color: #a3312b; margin-top: 4px;"><b>Не построено</b> · прогноз РНВ: {{ u.rnv }}</div>
+            </sc-if>
+            <sc-if value="{{ u.rnvBuilt }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size: 11px; color: #a3312b; margin-top: 4px;">Дата РНВ: {{ u.rnv }}</div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+ </sc-if>
+
+ <sc-if value="{{ showTenants }}" hint-placeholder-val="{{ false }}">
+  <div style="width: 340px; flex-shrink: 0; background: #fffdf9; border: 1px solid #ddd8cd; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 20px; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <div style="font-size: 18px; font-weight: 700; color: #a3312b;">Арендаторы ЖК «Рекорд»</div>
+      <div style="cursor: pointer; font-size: 18px; color: #8a8880; line-height: 1; padding: 2px 4px;" onClick="{{ closeTenants }}">×</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ tenantsList }}" as="t" hint-placeholder-count="4">
+        <div style="border: 1px solid #ede9e0; border-radius: 4px; padding: 10px 12px;">
+          <div style="font-weight: 700; margin-bottom: 2px;">{{ t.tenant }}</div>
+          <div style="font-size: 12px; color: #6b6a64; margin-bottom: 6px;">{{ t.location }}</div>
+          <div style="font-size: 13px;">{{ t.area }} · {{ t.rate }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+ </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { hovered: null, selected: null, summaryHovered: false, summaryPinned: false, showTenants: false, summaryFilter: null };
+
+  componentDidMount() {
+    // Контроль: у арендованного помещения в непостроенном литере обязана быть пометка "договор не активен", и наоборот.
+    for (const key in this.units) {
+      const notBuilt = this.data[key] && this.data[key].rnvBuilt === false;
+      for (const u of this.units[key]) {
+        if (!u.tenant) continue;
+        const hasNote = /договор не активен/.test(u.rate || '');
+        if (notBuilt && !hasNote) console.warn(`[контроль] ${key} №${u.number}: арендатор ${u.tenant} в непостроенном литере без пометки "договор не активен"`);
+      }
+    }
+  }
+
+  data = {
+    '1_1': { name: 'Литер 1 · Подъезд 1', commercial: 4, units: '705.9 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 4 (705.9 м²)', note: '' }], left: '37.6%', top: '33.6%', rnv: '29.05.2026' },
+    '1_2': { name: 'Литер 1 · Подъезд 2', commercial: 5, units: '711.8 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 5 (711.8 м²)', note: '' }, { text: 'В аренде: 1 (197.9 м²)', note: 'от ГК' }], left: '43.9%', top: '33.6%', rnv: '29.05.2026' },
+    '1_3': { name: 'Литер 1 · Подъезд 3', commercial: 3, units: '1041.2 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 3 (1041.2 м²)', note: '' }], left: '47.4%', top: '40.3%', rnv: '29.05.2026' },
+    '1_4': { name: 'Литер 1 · Подъезд 4', commercial: 3, units: '894.4 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 3 (894.4 м²)', note: '' }], left: '47.4%', top: '49%', rnv: '29.05.2026' },
+    '1_5': { name: 'Литер 1 · Подъезд 5', commercial: 5, units: '447.1 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'Продано: 3 (171.2 м²)', note: '' }, { text: 'В процессе передачи в ДВК: 2 (275.9 м²)', note: '' }], left: '43.2%', top: '51.8%', rnv: '29.05.2026' },
+    '2_1': { name: 'Литер 2 · Подъезд 1', commercial: 5, units: '655.4 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'Продано: 2 (210.1 м²)', note: '' }, { text: 'В процессе передачи в ДВК: 3 (445.3 м²)', note: '' }], left: '16.2%', top: '33.6%', rnv: '08.05.2026' },
+    '2_2': { name: 'Литер 2 · Подъезд 2', commercial: 4, units: '711.8 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 4 (711.8 м²)', note: '' }], left: '21.8%', top: '33.6%', rnv: '08.05.2026' },
+    '2_3': { name: 'Литер 2 · Подъезд 3', commercial: 3, units: '705.9 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 3 (705.9 м²)', note: '' }, { text: 'В аренде: 1 (449.5 м²)', note: 'от ГК' }], left: '27.4%', top: '33.6%', rnv: '08.05.2026' },
+    '3_1': { name: 'Литер 3 · Подъезд 1', commercial: 5, units: '418.8 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 5 (418.8 м²)', note: '' }], left: '17.3%', top: '61.5%', rnv: '24.07.2026' },
+    '3_2': { name: 'Литер 3 · Подъезд 2', commercial: 1, units: '441.8 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 1 (441.8 м²)', note: '' }], left: '20.8%', top: '54.3%', rnv: '24.07.2026' },
+    '4_1': { name: 'Литер 4 · Подъезд 1', commercial: 6, units: '435.6 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'Продано: 2 (129.2 м²)', note: '' }, { text: 'В процессе передачи в ДВК: 4 (306.4 м²)', note: '' }], left: '26.8%', top: '65.2%', rnv: '24.07.2026' },
+    '5_1': { rnvBuilt: false, name: 'Литер 5 · Подъезд 1', commercial: 5, units: '447.1 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'Продано: 2 (92.8 м²)', note: '' }, { text: 'В процессе передачи в ДВК: 3 (354.3 м²)', note: '' }], left: '60.3%', top: '51.8%', rnv: '10.10.2026' },
+    '5_2': { rnvBuilt: false, name: 'Литер 5 · Подъезд 2', commercial: 3, units: '894.4 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 3 (894.4 м²)', note: '' }], left: '56.8%', top: '47.3%', rnv: '10.10.2026' },
+    '5_3': { rnvBuilt: false, name: 'Литер 5 · Подъезд 3', commercial: 3, units: '1041.2 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 3 (1041.2 м²)', note: '' }], left: '56.8%', top: '40.3%', rnv: '10.10.2026' },
+    '5_4': { rnvBuilt: false, name: 'Литер 5 · Подъезд 4', commercial: 4, units: '706.7 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 4 (706.7 м²)', note: '' }], left: '60.3%', top: '33.6%', rnv: '10.10.2026' },
+    '6_1': { rnvBuilt: false, name: 'Литер 6 · Подъезд 1', commercial: 5, units: '447.1 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'В процессе передачи в ДВК: 5 (447.1 м²)', note: '' }], left: '71.9%', top: '49%', rnv: '10.10.2026' },
+    '6_2': { rnvBuilt: false, name: 'Литер 6 · Подъезд 2', commercial: 6, units: '580.4 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'Продано: 2 (92.8 м²)', note: '' }, { text: 'В процессе передачи в ДВК: 4 (487.6 м²)', note: '' }], left: '68%', top: '51.8%', rnv: '10.10.2026' },
+    'k1': { name: 'Коммерческое помещение К1', commercial: 3, units: '437.2 м²', unitsLabel: 'Площадь', statuses: [{ text: 'Не передано в ДВК: 3 (437.2 м²)', note: '' }], left: '50.4%', top: '30.1%', rnv: '29.05.2026' },
+    'k2': { rnvBuilt: false, name: 'Коммерческое помещение К2', commercial: 3, units: '419.2 м²', unitsLabel: 'Площадь', statuses: [{ text: 'Не передано в ДВК: 3 (419.2 м²)', note: '' }], left: '54.6%', top: '30.1%', rnv: '10.12.2026' },
+    'k3': { rnvBuilt: false, name: 'Коммерческое помещение К3', commercial: 3, units: '1481.3 м²', unitsLabel: 'Площадь', statuses: [{ text: 'Не передано в ДВК: 3 (1481.3 м²)', note: '' }], left: '64.5%', top: '26.3%', rnv: '10.12.2026' },
+    'office': { name: 'Офис продаж ЖК «Рекорд»', units: '—', unitsLabel: 'Режим', statuses: [], left: '58.5%', top: '21%' },
+    'k4': { rnvBuilt: false, name: 'Коммерческое помещение К4', commercial: 3, units: '1217.9 м²', unitsLabel: 'Площадь', statuses: [{ text: 'Не передано в ДВК: 3 (1217.9 м²)', note: '' }], left: '27.3%', top: '57.6%', rnv: '10.12.2026' },
+    'm1': { rnvBuilt: false, name: 'Литер М1', commercial: 2, units: '209.7 м²', unitsLabel: 'Площадь коммерческих помещений', statuses: [{ text: 'Не передано в ДВК: 2 (209.7 м²)', note: '' }], left: '15%', top: '16%', rnv: '10.12.2026' },
+  };
+
+  units = {
+    '1_1': [{ number: '1. 1/1', area: '134.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '20 130 000 ₽' }, { number: '2. 2/1', area: '122.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '18 330 000 ₽' }, { number: '3. 3/1', area: '168.6 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '25 290 000 ₽' }, { number: '4. 4/1', area: '280.9 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '42 135 000 ₽' }],
+    '1_2': [{ number: '5. 5/1', area: '136.6 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '20 490 000 ₽' }, { number: '6. 6/1', area: '197.9 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '29 685 000 ₽', tenant: 'Офис выдачи ключей', rate: 'в пользовании ГК' }, { number: '7. 7/1', area: '113.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '16 980 000 ₽' }, { number: '8. 8/1', area: '132.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '19 830 000 ₽' }, { number: '9. 9/1', area: '131.9 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '19 785 000 ₽' }],
+    '1_3': [{ number: '10. 10/1', area: '512.9 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '76 935 000 ₽' }, { number: '11. 11/1', area: '263.8 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 570 000 ₽' }, { number: '12. 12/1', area: '264.5 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 675 000 ₽' }],
+    '1_4': [{ number: '13. 13/1', area: '264.5 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 675 000 ₽' }, { number: '14. 14/1', area: '263.8 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 570 000 ₽' }, { number: '15. 15/1', area: '366.1 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '54 915 000 ₽' }],
+    '1_5': [{ number: '16. 16/1', area: '88.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '13 230 000 ₽' }, { number: '17. 17/1', area: '78.4 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'Мирзоян Тамела Сергеевна', dduPrice: '23 520 941 ₽' }, { number: '18. 18/1', area: '41.7 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'Беджанян Армен Сейранович', dduPrice: '12 510 000 ₽' }, { number: '19. 19/1', area: '51.1 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'Быков Михаил Ильич', dduPrice: '15 074 602 ₽' }, { number: '20. 20/1. 20/2', area: '187.7 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '28 155 000 ₽' }],
+    '2_1': [{ number: '1. 1/1', area: '171.4 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '25 710 000 ₽' }, { number: '2. 2/1', area: '87.2 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'КЗВС ООО', dduPrice: '24 852 000 ₽' }, { number: '3. 3/1', area: '122.9 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'Переверзев Анатолий Анатольевич', dduPrice: '31 954 000 ₽' }, { number: '4. 4/1', area: '139.3 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '20 895 000 ₽' }, { number: '5. 5/1', area: '134.6 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '20 190 000 ₽' }],
+    '2_2': [{ number: '6. 6/1', area: '134.9 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '20 235 000 ₽' }, { number: '7. 7/1', area: '198.5 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '29 775 000 ₽' }, { number: '8. 8/1', area: '113.0 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '16 950 000 ₽' }, { number: '9. 9/1', area: '265.4 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '39 810 000 ₽' }],
+    '2_3': [{ number: '10. 10/1', area: '134.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '20 130 000 ₽' }, { number: '11. 11/1', area: '122.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '18 330 000 ₽' }, { number: '12. 12/1, 13. 13/1', area: '449.5 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', tenant: '«Пятерочка»', rate: '2 400 ₽/м²/мес — договор не активен', dduPrice: '67 425 000 ₽' }],
+    '3_1': [{ number: '1, 1/1', area: '185.4 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '27 810 000 ₽' }, { number: '2, 2/1', area: '42.7 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '6 405 000 ₽' }, { number: '3, 3/1', area: '34.1 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '5 115 000 ₽' }, { number: '4, 4/1', area: '16.2 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '2 430 000 ₽' }, { number: '5, 5/1', area: '140.4 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '21 060 000 ₽' }],
+    '3_2': [{ number: '6', area: '441.8 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '66 270 000 ₽' }],
+    '4_1': [{ number: '1. 1/1', area: '188.9 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '28 335 000 ₽' }, { number: '2. 2/1', area: '51.0 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '7 650 000 ₽' }, { number: '3. 3/1', area: '47.6 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '7 140 000 ₽' }, { number: '4. 4/1', area: '18.9 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '2 835 000 ₽' }, { number: '5. 5/1', area: '56.8 м²', status: 'Продано', liq: 'Среднеликвидное', dolshchik: 'Кузьмичев Сергей Вадимович', dduPrice: '16 756 000 ₽' }, { number: '6. 6/1', area: '72.4 м²', status: 'Продано', liq: 'Среднеликвидное', dolshchik: 'Кузьмичев Сергей Вадимович', dduPrice: '21 358 000 ₽' }],
+    '5_1': [{ number: '1. 1/1', area: '88.2 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '13 230 000 ₽' }, { number: '2. 2/1', area: '78.4 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', tenant: 'OZON + WB', rate: '2 500 ₽/м²/мес — договор не активен', dduPrice: '11 760 000 ₽' }, { number: '3. 3/1', area: '41.7 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'Фесенко Виталий Викторович', dduPrice: '12 510 000 ₽' }, { number: '4. 4/1', area: '51.1 м²', status: 'Продано', liq: 'Высоколиквидное', dolshchik: 'ООО «Лизинговая Компания Простые Решения»', dduPrice: '16 607 501 ₽' }, { number: '5. 5/1. 5/2', area: '187.7 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '28 155 000 ₽' }],
+    '5_2': [{ number: '6. 6/1', area: '366.1 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '54 915 000 ₽' }, { number: '7. 7/1', area: '263.8 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 570 000 ₽' }, { number: '8. 8/1', area: '264.5 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 675 000 ₽' }],
+    '5_3': [{ number: '9. 9/1', area: '264.5 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 675 000 ₽' }, { number: '10. 10/1', area: '263.8 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '39 570 000 ₽' }, { number: '11. 11/1', area: '512.9 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', tenant: '«Пятерочка»', rate: '2 400 ₽/м²/мес — договор не активен', dduPrice: '76 935 000 ₽' }],
+    '5_4': [{ number: '12. 12/1', area: '255.4 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '38 310 000 ₽' }, { number: '13. 13/1', area: '78.8 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '11 820 000 ₽' }, { number: '14. 14/1', area: '93.8 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '14 070 000 ₽' }, { number: '15. 15/1. 15/2', area: '278.7 м²', status: 'В процессе передачи в ДВК', liq: 'Высоколиквидное', dduPrice: '41 805 000 ₽' }],
+    '6_1': [{ number: '1. 1/1', area: '88.2 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '13 230 000 ₽' }, { number: '2. 2/1', area: '78.4 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '11 760 000 ₽' }, { number: '3.3/1', area: '41.7 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '6 255 000 ₽' }, { number: '4. 4/1', area: '51.1 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '7 665 000 ₽' }, { number: '5. 5/1.5/2', area: '187.7 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '28 155 000 ₽' }],
+    '6_2': [{ number: '6. 6/1. 6/2', area: '187.7 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '28 155 000 ₽' }, { number: '7. 7/1', area: '51.1 м²', status: 'Продано', liq: 'Среднеликвидное', dolshchik: 'Шульга Людмила Александровна', dduPrice: '15 330 000 ₽' }, { number: '8. 8/1', area: '41.7 м²', status: 'Продано', liq: 'Среднеликвидное', dolshchik: 'Шульга Людмила Александровна', dduPrice: '12 510 000 ₽' }, { number: '9. 9/1', area: '48.3 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '7 245 000 ₽' }, { number: '10.10/1', area: '126.0 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '18 900 000 ₽' }, { number: '11. 11/1', area: '125.6 м²', status: 'В процессе передачи в ДВК', liq: 'Среднеликвидное', dduPrice: '18 840 000 ₽' }],
+    'k1': [{ number: '1/Н', area: '131.6 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }, { number: '2/Н', area: '152.6 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное', tenant: 'Офис продаж', rate: 'в пользовании ГК' }, { number: '3/Н', area: '153.0 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }],
+    'k2': [{ number: '1, 1/1,1/2', area: '121.4 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }, { number: '2, 2/1,2/2', area: '147.4 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '19 494 000 ₽', dolshchik: 'Морозова Мария Сергеевна' }, { number: '3, 3/1,3/2', area: '150.4 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }],
+    'k3': [{ number: '1/Н', area: '478.4 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }, { number: '2/Н', area: '493.1 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', dduPrice: '62 905 200 ₽', dolshchik: 'Морозова Мария Сергеевна' }, { number: '3/Н', area: '509.8 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }],
+    'k4': [{ number: '1', area: '400.3 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }, { number: '2', area: '406.7 м²', status: 'В процессе передачи в ДВК', liq: 'Сверхликвидное', tenant: '«Пятерочка»', rate: '2 400 ₽/м²/мес — договор не активен', dduPrice: '100 160 400 ₽', dolshchik: 'Морозова Мария Сергеевна' }, { number: '3', area: '410.9 м²', status: 'Не передано в ДВК', liq: 'Сверхликвидное' }],
+    'm1': [{ number: '1', area: '93.7 м²', status: 'Не передано в ДВК', liq: 'Высоколиквидное' }, { number: '2', area: '116.0 м²', status: 'Не передано в ДВК', liq: 'Высоколиквидное' }],
+  };
+
+  tenants = [
+    { tenant: '«Пятерочка»', tt: 'Продуктовый магазин «Пятерочка»', location: 'Коммерческое помещение К4', area: '406.7 м²', rate: '2 400 ₽/м²/мес — договор не активен' },
+    { tenant: '«Пятерочка»', tt: 'Продуктовый магазин «Пятерочка»', location: 'Литер 2 · Подъезд 3', area: '449.5 м²', rate: '2 400 ₽/м²/мес — договор не активен' },
+    { tenant: 'OZON + WB', tt: 'OZON + WB', location: 'Литер 5 · Подъезд 1', area: '78.4 м²', rate: '2 500 ₽/м²/мес — договор не активен' },
+    { tenant: '«Пятерочка»', tt: 'Продуктовый магазин «Пятерочка»', location: 'Литер 5 · Подъезд 3', area: '512.9 м²', rate: '2 400 ₽/м²/мес — договор не активен' },
+    { tenant: 'ИП Меликян А.Ф.', tt: 'ПВЗ Wildberries + OZON', location: 'Литер 1 · Подъезд 2', area: '132.8 м²', rate: '2 000 ₽/м²/мес — договор 23.07.2026 (пом. №9, 9/1)' },
+  ];
+  ttByLocation = {
+    'Коммерческое помещение К4': 'Продуктовый магазин «Пятерочка»',
+    'Литер 5 · Подъезд 3': 'Продуктовый магазин «Пятерочка»',
+    'Литер 2 · Подъезд 3': 'Продуктовый магазин «Пятерочка»',
+    'Литер 5 · Подъезд 1': 'OZON + WB',
+    'Литер 1 · Подъезд 2': 'ПВЗ Wildberries + OZON',
+  };
+
+  enter(id) { this.setState({ hovered: id }); }
+  leaveAll() { this.setState({ hovered: null }); }
+  select(id) { if (this.units[id]) this.setState({ selected: id, showTenants: false }); }
+  closePanel() { this.setState({ selected: null }); }
+  openTenants() { this.setState({ showTenants: true, selected: null, summaryFilter: null, summaryPinned: false, summaryHovered: false }); }
+  closeTenants() { this.setState({ showTenants: false, summaryPinned: true }); }
+  openSummaryFilter(key, label) { this.setState({ summaryFilter: { key, label }, selected: null, showTenants: false, summaryPinned: false, summaryHovered: false }); }
+  closeSummaryFilter() { this.setState({ summaryFilter: null, summaryPinned: true }); }
+  toggleSummary() { this.setState({ summaryPinned: !this.state.summaryPinned }); }
+  formatRub(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽/мес'; }
+  liqColors = { 'Сверхликвидное': '#d3f2df', 'Высоколиквидное': '#dcdcf7', 'Среднеликвидное': '#fbf1de' };
+  enterSummary() { this.setState({ summaryHovered: true }); }
+  leaveSummary() { this.setState({ summaryHovered: false }); }
+
+  planImgs = { '2_1': 'assets/ZHK_Rekord_2_korpus_2_pod_1_komertsiya_01.png', '1_2': 'assets/ZHK_Rekord_1_korpus_1_pod_2_komertsiya_01.png', '1_5': 'assets/ZHK_Rekord_1_korpus_1_pod_5_komertsiya_01.png', '2_2': 'assets/ZHK_Rekord_2_korpus_2_pod_2_komertsiya_01.png', '2_3': 'assets/ZHK_Rekord_2_korpus_2_pod_3_komertsiya_01.png', '6_1': 'assets/ZHK_Rekord_6_korpus_6_pod_1_komertsiya_01.png', '6_2': 'assets/ZHK_Rekord_6_korpus_6_pod_2_komertsiya_01.png', '5_4': 'assets/ZHK_Rekord_5_korpus_5_pod_4_komertsiya_01.png', '5_1': 'assets/ZHK_Rekord_5_korpus_5_pod_1_komertsiya_01.png', '1_1': 'assets/ZHK_Rekord_1_korpus_1_pod_1_komertsiya_01.png' };
+  planHighlightBoxes = {
+    '2_1': [
+      { left: '20%', top: '57%' },
+      { left: '40%', top: '40%' },
+      { left: '58%', top: '32%' },
+      { left: '73%', top: '32%' },
+      { left: '86%', top: '32%' },
+    ],
+    '1_2': [
+      { left: '19%', top: '38%' },
+      { left: '35%', top: '38%' },
+      { left: '52%', top: '38%' },
+      { left: '75%', top: '38%' },
+      { left: '90%', top: '38%' },
+    ],
+    '1_5': [
+      { left: '25%', top: '78%' },
+      { left: '40%', top: '68%' },
+      { left: '54%', top: '68%' },
+      { left: '74%', top: '68%' },
+      { left: '92%', top: '58%' },
+    ],
+    '2_2': [
+      { left: '18%', top: '38%' },
+      { left: '35%', top: '38%' },
+      { left: '50%', top: '38%' },
+      { left: '80%', top: '38%' },
+    ],
+    '2_3': [
+      { left: '15%', top: '38%' },
+      { left: '28%', top: '38%' },
+      { left: '55%', top: '38%' },
+      { left: '80%', top: '38%' },
+    ],
+    '6_1': [
+      { left: '18%', top: '58%' },
+      { left: '30%', top: '58%' },
+      { left: '48%', top: '80%' },
+      { left: '58%', top: '80%' },
+      { left: '78%', top: '65%' },
+      { left: '87%', top: '38%' },
+    ],
+    '6_2': [
+      { left: '18%', top: '55%' },
+      { left: '34%', top: '75%' },
+      { left: '48%', top: '80%' },
+      { left: '62%', top: '70%' },
+      { left: '76%', top: '78%' },
+      { left: '78%', top: '65%' },
+    ],
+    '5_4': [
+      { left: '20%', top: '38%' },
+      { left: '46%', top: '38%' },
+      { left: '58%', top: '38%' },
+      { left: '80%', top: '38%' },
+    ],
+    '5_1': [
+      { left: '18%', top: '38%' },
+      { left: '29%', top: '38%' },
+      { left: '48%', top: '65%' },
+      { left: '58%', top: '65%' },
+      { left: '78%', top: '65%' },
+    ],
+    '1_1': [
+      { left: '90%', top: '38%' },
+      { left: '75%', top: '38%' },
+      { left: '48%', top: '38%' },
+      { left: '30%', top: '38%' },
+    ],
+  };
+  renderVals() {
+    const vals = {};
+    const planImgsRef = this.planImgs;
+    const fmtArea = (n) => n.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' м²';
+    const ids = Object.keys(this.data);
+    const sizes = {
+      '2_1': { w: 6.2, h: 7.3 }, '2_2': { w: 5.6, h: 6 }, '2_3': { w: 5.6, h: 6 },
+      '1_1': { w: 6.2, h: 6 }, '1_2': { w: 5.9, h: 6 }, '5_4': { w: 6.2, h: 5.4 },
+      '1_3': { w: 3.4, h: 10.4 }, '1_4': { w: 3.4, h: 12.6 }, '1_5': { w: 5.8, h: 5.2 },
+      '5_1': { w: 5.7, h: 6 }, '5_2': { w: 3.4, h: 12.6 }, '5_3': { w: 3.4, h: 10.4 },
+      '6_1': { w: 2.1, h: 12.5 }, '6_2': { w: 4.8, h: 5.5 },
+      '3_1': { w: 3.3, h: 10.5 }, '3_2': { w: 2.9, h: 9 }, '4_1': { w: 7.4, h: 4.6 },
+      'k1': { w: 1.9, h: 2.9 }, 'k2': { w: 1.9, h: 2.9 }, 'k3': { w: 2.2, h: 8 }, 'k4': { w: 5.4, h: 6 },
+      'office': { w: 4.2, h: 2.2 },
+      'm1': { w: 1.4, h: 4.6 },
+    };
+    const leftOffsets = { '2_2': 0.3, '2_3': 0.6, '1_1': 0.3, '1_2': 0.15, '5_4': -0.3, '1_3': 1.15, '1_4': 1.15, '1_5': 0.4, '5_2': -1.7, '5_3': -1.7, '5_1': -0.35, '6_2': 0.25, '3_1': 0.8, '3_2': 0.8, 'k4': 0.6, '4_1': -0.65, 'k3': -0.3, 'k2': -0.25, 'k1': -0.25, 'office': -0.8, 'm1': -0.6 };
+    const offsets = {
+      '2_1': 2.15, '2_2': 1.5, '2_3': 1.5,
+      '1_1': 1.5, '1_2': 1.5, '5_4': 1.2, '1_3': -2.75, '1_4': 0.1, '1_5': 0.7, '5_1': 1, '5_2': 1.8, '5_3': -2.75, '6_2': 0.9, '3_1': 0.5, '3_2': -0.55, '4_1': 1.6, 'k3': -0.75, 'k2': -1, 'k1': -1, 'm1': 0.55, 'office': -0.3,
+    };
+    const rotations = { '3_1': 30, '3_2': 31, '4_1': -58, 'm1': 180 };
+    vals.buildings = ids.map((id) => {
+      const isHovered = this.state.hovered === id || this.state.selected === id;
+      const s = sizes[id] || { w: 3.6, h: 3.2 };
+      const offset = offsets[id] || 0;
+      const leftOffset = leftOffsets[id] || 0;
+      return {
+        id,
+        left: `calc(${this.data[id].left} + ${leftOffset}%)`,
+        top: `calc(${this.data[id].top} + ${offset}%)`,
+        w: s.w + '%',
+        h: s.h + '%',
+        rot: rotations[id] || 0,
+        border: isHovered ? '2px solid #a3312b' : '2px solid transparent',
+        onEnter: () => this.enter(id),
+        onClick: () => this.select(id),
+      };
+    });
+    vals.leave = () => this.leaveAll();
+    const tooltipOffsets = {
+      '2_1': 3.2, '2_2': 3.2, '2_3': 3.4,
+      '1_1': 3.5, '1_2': 3.2, '5_4': 2.8,
+      '1_3': 2.85, '1_4': 2.85, '1_5': 3.3, '5_2': 0, '5_3': 0,
+      '5_1': 2,
+      '6_1': 1.05, '6_2': 2.65,
+      '3_1': 2.3, '3_2': 2, '4_1': 2.3,
+      'k1': 0.7, 'k2': 0.7, 'k3': 0.8, 'k4': 3.3, 'office': 1.3,
+      'office': 2.1, 'm1': 0.4,
+    };
+    const tooltipTopOffsets = { '1_3': -3, '1_4': -3, '5_2': -3, '5_3': -3 };
+    if (this.state.hovered) {
+      const info = this.data[this.state.hovered];
+      const off = tooltipOffsets[this.state.hovered] || 0;
+      const topOff = tooltipTopOffsets[this.state.hovered] || 0;
+      vals.activeInfo = { ...info, left: `calc(${info.left} + ${off}%)`, top: `calc(${info.top} + ${topOff}%)`, notBuilt: info.rnvBuilt === false, rnvBuilt: info.rnvBuilt !== false };
+    } else {
+      vals.activeInfo = null;
+    }
+    vals.closePanel = () => this.closePanel();
+    vals.planZoomImg = this.state.planZoomImg || '';
+    vals.openPlanZoom = () => this.setState({ planZoomImg: this.data[this.state.selected] && planImgsRef[this.state.selected] });
+    vals.closePlanZoom = () => this.setState({ planZoomImg: null, zoomHoverIdx: null });
+    vals.stopProp = (e) => e.stopPropagation();
+    {
+      const zoomBoxes = this.planHighlightBoxes[this.state.selected] || [];
+      const zoomUnits = this.units[this.state.selected] || [];
+      const zi = this.state.zoomHoverIdx;
+      vals.zoomHoverZones = zoomBoxes.map((b, idx) => ({ left: b.left, top: b.top, w: '15%', h: '20%', onHover: () => this.setState({ zoomHoverIdx: idx }), onUnhover: () => this.setState({ zoomHoverIdx: null }) }));
+      vals.zoomTooltip = (zi != null && zoomUnits[zi]) ? { ...zoomUnits[zi], left: zoomBoxes[zi].left, top: zoomBoxes[zi].top } : null;
+    }
+
+    if (this.state.selected) {
+      const sel = this.data[this.state.selected];
+      const isLiter = /^\d_\d$/.test(this.state.selected);
+      const planBoxes = this.planHighlightBoxes[this.state.selected] || [];
+      const hoveredIdx = this.state.hoveredUnitIdx;
+      vals.selectedInfo_highlightBoxes_TMP = null;
+      const list = (this.units[this.state.selected] || []).map((u, idx) => ({ ...u, liqColor: this.liqColors[u.liq] || 'transparent', strike: u.status === 'Продано' ? 'line-through' : 'none', onHover: () => this.setState({ hoveredUnitIdx: idx }), onUnhover: () => this.setState({ hoveredUnitIdx: null }), mgmt: '', notSold: u.status !== 'Продано', dolshchik: u.dduPrice ? (u.dolshchik || 'КЛАДПАРК ЛИЧНЫЙ ФОНД') : '', priceRefRent: u.status !== 'Продано' ? this.formatRub(parseFloat(u.area) * 2000) : '', priceRefMgmt: u.status !== 'Продано' ? this.formatRub(parseFloat(u.area) * 73) : '' }));
+      const highlightBoxes = planBoxes.map((b, idx) => ({ ...b, opacity: hoveredIdx === idx ? 1 : 0 }));
+      vals.selectedInfo = { ...sel, unitsList: list, notBuilt: sel.rnvBuilt === false, rnvBuilt: sel.rnvBuilt !== false, planImg: planImgsRef[this.state.selected] || '', highlightBoxes };
+    } else {
+      vals.selectedInfo = null;
+    }
+
+    vals.toggleSummary = () => this.toggleSummary();
+    vals.enterSummary = () => this.enterSummary();
+    vals.leaveSummary = () => this.leaveSummary();
+    vals.summaryVisible = this.state.summaryHovered || this.state.summaryPinned;
+    vals.openTenants = () => this.openTenants();
+    vals.closeTenants = () => this.closeTenants();
+    vals.showTenants = this.state.showTenants;
+    vals.tenantsList = this.tenants;
+
+    const predicates = {
+      total: () => true,
+      sold: u => u.status === 'Продано',
+      notDelivered: u => u.status === 'Не передано в ДВК' || u.status === 'Не передано в ДВК (в аренде)' || u.status === 'В пользовании ГК (выдача ключей)',
+      inProgress: u => u.status === 'В процессе передачи в ДВК' || u.status === 'В аренде (от ГК)',
+      rentedGk: u => u.status === 'В аренде (от ГК)',
+      usedByGk: u => u.rate === 'в пользовании ГК',
+      idleDvk: u => u.status === 'В простое у ДВК',
+      rentedDvk: u => u.status === 'В аренде (от ДВК)',
+      delivered: u => u.status === 'В простое у ДВК' || u.status === 'В аренде (от ДВК)',
+    };
+    // Единый источник правды для всех сумм в сводке — считается напрямую из this.units,
+    // чтобы цифры не расходились с реальными данными помещений.
+    {
+      const fmtInt = (n) => Math.round(n).toLocaleString('ru-RU');
+      const totals = {};
+      for (const k in predicates) totals[k] = { count: 0, area: 0 };
+      let dduSum = 0;
+      let soldSum = 0;
+      let soldPricedArea = 0;
+      for (const key in this.units) {
+        const isLiterKey = /^\d_\d$/.test(key);
+        for (const u of this.units[key]) {
+          const area = parseFloat(u.area);
+          for (const k in predicates) {
+            if (predicates[k](u)) { totals[k].count++; totals[k].area += area; }
+          }
+          if (u.dduPrice && u.status !== 'Продано') dduSum += parseFloat(u.dduPrice.replace(/[^\d]/g, ''));
+          if (u.dduPrice && u.status === 'Продано') { soldSum += parseFloat(u.dduPrice.replace(/[^\d]/g, '')); soldPricedArea += area; }
+        }
+      }
+      for (const k in totals) {
+        vals[k + 'Count'] = totals[k].count;
+        vals[k + 'Area'] = fmtArea(totals[k].area);
+      }
+      vals.inProgressDduSum = fmtInt(dduSum) + ' ₽';
+      vals.soldDduSum = fmtInt(soldSum) + ' ₽';
+      vals.soldAvgSqm = soldPricedArea ? fmtInt(soldSum / soldPricedArea) + ' ₽/м²' : '—';
+      const deliveredBase = totals.delivered.count;
+      const deliveredAreaBase = totals.delivered.area;
+      vals.occupancyRate = deliveredBase ? Math.round((totals.rentedDvk.count / deliveredBase) * 100) + '%' : '—';
+      vals.occupancyRateArea = deliveredAreaBase ? Math.round((totals.rentedDvk.area / deliveredAreaBase) * 100) + '%' : '—';
+    }
+    vals.openTotal = () => this.openSummaryFilter('total', 'Все коммерческие помещения');
+    vals.openSold = () => this.openSummaryFilter('sold', 'Проданные помещения');
+    vals.openNotDelivered = () => this.openSummaryFilter('notDelivered', 'Не передано в ДВК');
+    vals.openInProgress = () => this.openSummaryFilter('inProgress', 'В процессе передачи в ДВК');
+    vals.openRentedGk = () => this.openSummaryFilter('rentedGk', 'В аренде от ГК');
+    vals.openIdleDvk = () => this.openSummaryFilter('idleDvk', 'В простое у ДВК');
+    vals.openUsedByGk = () => this.openSummaryFilter('usedByGk', 'В пользовании ГК');
+    vals.openNotBuilt = () => { this.setState({ selected: null, showTenants: false, summaryFilter: { key: '__notBuilt', label: 'Непостроенные помещения' }, summaryPinned: false, summaryHovered: false }); };
+    vals.openDelivered = () => this.openSummaryFilter('delivered', 'Передано в ДВК');
+    vals.problemsVisible = this.state.problemsVisible || false;
+    vals.toggleProblems = () => this.setState(s => ({ problemsVisible: !s.problemsVisible }));
+    vals.efficiencyVisible = this.state.efficiencyVisible || false;
+    vals.toggleEfficiency = () => this.setState(s => ({ efficiencyVisible: !s.efficiencyVisible }));
+    vals.openOskProblem = () => this.setState({ oskProblemOpen: true, problemsVisible: false });
+    vals.closeOskProblem = () => this.setState({ oskProblemOpen: false });
+    if (this.state.oskProblemOpen) {
+      const now = new Date(2026, 6, 28);
+      const rnvDate = new Date(2026, 11, 10);
+      const oskKeys = ['k1', 'k2', 'k3', 'k4', 'm1'];
+      const units = oskKeys.map(key => {
+        const list = this.units[key] || [];
+        const area = list.reduce((sum, u) => sum + parseFloat(u.area), 0);
+        return { name: this.data[key].name, count: list.length, area: fmtArea(area) };
+      });
+      const violated = now > rnvDate;
+      vals.oskProblemInfo = {
+        units,
+        violated: violated ? '#a3312b' : '#3a7a42',
+        violationText: violated ? `Нарушение: дата РНВ 10.12.2026 прошла` : 'Нарушение отсутствует — срок 10.12.2026 ещё не наступил',
+      };
+    } else {
+      vals.oskProblemInfo = null;
+    }
+    vals.openTransferProblem = () => this.setState({ transferProblemOpen: true, problemsVisible: false });
+    vals.closeTransferProblem = () => this.setState({ transferProblemOpen: false });
+    if (this.state.transferProblemOpen) {
+      const stuck = [];
+      for (const key in this.units) {
+        const d = this.data[key];
+        if (!d || !d.rnv || d.rnvBuilt === false) continue;
+        for (const u of this.units[key]) {
+          if (u.status === 'Не передано в ДВК' || u.status === 'Не передано в ДВК (в аренде)') {
+            stuck.push({ number: u.number, area: u.area, location: d.name, rnv: d.rnv });
+          }
+        }
+      }
+      vals.transferProblemInfo = {
+        units: stuck,
+        violated: stuck.length ? '#a3312b' : '#3a7a42',
+        violationText: stuck.length ? `Нарушение: ${stuck.length} помещений с фактическим РНВ не переданы в ДВК` : 'Нарушение отсутствует',
+      };
+    } else {
+      vals.transferProblemInfo = null;
+    }
+    vals.openNoTenantProblem = () => this.setState({ noTenantProblemOpen: true, problemsVisible: false });
+    vals.closeNoTenantProblem = () => this.setState({ noTenantProblemOpen: false });
+    if (this.state.noTenantProblemOpen) {
+      const now = new Date(2026, 6, 28);
+      const parseRu = (s) => { const [d, m, y] = s.split('.').map(Number); return new Date(y, m - 1, d); };
+      const found = [];
+      for (const key in this.units) {
+        const d = this.data[key];
+        if (!d || !d.rnv || d.rnvBuilt === false) continue;
+        const days = Math.floor((now - parseRu(d.rnv)) / 86400000);
+        if (days < 182) continue;
+        for (const u of this.units[key]) {
+          if (u.status === 'Продано') continue;
+          const hasActiveTenant = u.tenant && !/договор не активен/.test(u.rate || '');
+          if (!hasActiveTenant) found.push({ number: u.number, area: u.area, location: d.name, rnv: d.rnv, days });
+        }
+      }
+      vals.noTenantProblemInfo = {
+        units: found,
+        violated: found.length ? '#a3312b' : '#3a7a42',
+        violationText: found.length ? `Нарушение: ${found.length} помещений без арендатора спустя 6+ месяцев после РНВ` : 'Нарушение отсутствует',
+      };
+    } else {
+      vals.noTenantProblemInfo = null;
+    }
+    vals.openDebtProblem = () => this.setState({ debtProblemOpen: true, problemsVisible: false });
+    vals.closeDebtProblem = () => this.setState({ debtProblemOpen: false });
+    if (this.state.debtProblemOpen) {
+      vals.debtProblemInfo = { note: 'Нет данных о дебиторской задолженности арендаторов — проверка не может быть выполнена.' };
+    } else {
+      vals.debtProblemInfo = null;
+    }
+    {
+      const now = new Date(2026, 6, 28);
+      const parseRu = (s) => { const [d, m, y] = s.split('.').map(Number); return new Date(y, m - 1, d); };
+      const wordDays = (n) => { const n10 = n % 10, n100 = n % 100; if (n100 >= 11 && n100 <= 14) return 'дней'; if (n10 === 1) return 'день'; if (n10 >= 2 && n10 <= 4) return 'дня'; return 'дней'; };
+      const wordPassed = (n) => { const n10 = n % 10, n100 = n % 100; if (n100 >= 11 && n100 <= 14) return 'прошло'; if (n10 === 1) return 'прошёл'; if (n10 >= 2 && n10 <= 4) return 'прошло'; return 'прошло'; };
+      const wordUnits = (n) => { const n10 = n % 10, n100 = n % 100; if (n100 >= 11 && n100 <= 14) return 'помещений'; if (n10 === 1) return 'помещение'; if (n10 >= 2 && n10 <= 4) return 'помещения'; return 'помещений'; };
+      const buildAging = (matches, dateLabel) => {
+        const groups = {};
+        for (const key in this.units) {
+          const d = this.data[key];
+          if (!d || !d.rnv || d.rnvBuilt === false) continue;
+          for (const u of this.units[key]) {
+            if (matches(u)) groups[d.rnv] = (groups[d.rnv] || 0) + 1;
+          }
+        }
+        const list = Object.keys(groups).map((rnv) => {
+          const count = groups[rnv];
+          const days = Math.floor((now - parseRu(rnv)) / 86400000);
+          return `${count} ${wordUnits(count)} — ${days} ${wordDays(days)} ${wordPassed(days)} с ${dateLabel}`;
+        });
+        return list.length ? list : [`0 помещений — 0 дней простоя с ${dateLabel}`];
+      };
+      const buildIdleAging = () => {
+        const groups = {};
+        for (const key in this.units) {
+          for (const u of this.units[key]) {
+            if (u.status === 'В простое у ДВК' && u.dvkTransferDate) {
+              groups[u.dvkTransferDate] = (groups[u.dvkTransferDate] || 0) + 1;
+            }
+          }
+        }
+        const list = Object.keys(groups).map((dt) => {
+          const count = groups[dt];
+          const days = Math.floor((now - parseRu(dt)) / 86400000);
+          return `${count} ${wordUnits(count)} — ${days} ${wordDays(days)} ${wordPassed(days)} с даты передачи в ДВК`;
+        });
+        return list.length ? list : ['0 помещений — 0 дней простоя с даты передачи в ДВК'];
+      };
+      vals.idleDvkAging = buildIdleAging();
+      {
+        let count = 0, area = 0;
+        for (const key in this.units) {
+          const d = this.data[key];
+          if (!d || d.rnvBuilt !== false) continue;
+          for (const u of this.units[key]) {
+            if (u.status === 'Продано') continue;
+            count++; area += parseFloat(u.area);
+          }
+        }
+        vals.notBuiltCount = count;
+        vals.notBuiltArea = fmtArea(area);
+      }
+      {
+        let latestRnv = null;
+        let allBuilt = true;
+        for (const key in this.data) {
+          if (/^k|^m/.test(key)) continue;
+          const d = this.data[key];
+          if (!d || !d.rnv) continue;
+          if (d.rnvBuilt === false) { allBuilt = false; continue; }
+          const dt = parseRu(d.rnv);
+          if (!latestRnv || dt > latestRnv) latestRnv = dt;
+        }
+        if (!allBuilt) {
+          vals.usedByGkDaysNote = '0 дней с даты последнего РНВ в ЖК — не все литеры построены';
+        } else if (latestRnv) {
+          const days = Math.floor((now - latestRnv) / 86400000);
+          vals.usedByGkDaysNote = `${days} ${wordDays(days)} ${wordPassed(days)} с даты фактического РНВ последнего литера`;
+        } else {
+          vals.usedByGkDaysNote = '';
+        }
+      }
+      const buildRentedDvkAging = () => {
+        const groups = {};
+        for (const key in this.units) {
+          for (const u of this.units[key]) {
+            if (u.status === 'В аренде (от ДВК)' && u.rentStartDate) {
+              groups[u.rentStartDate] = (groups[u.rentStartDate] || 0) + 1;
+            }
+          }
+        }
+        const list = Object.keys(groups).map((dt) => {
+          const count = groups[dt];
+          const days = Math.floor((now - parseRu(dt)) / 86400000);
+          return `${count} ${wordUnits(count)} — ${days} ${wordDays(days)} в непрерывной аренде`;
+        });
+        return list.length ? list : ['0 помещений — 0 дней в непрерывной аренде'];
+      };
+      vals.rentedDvkAging = buildRentedDvkAging();
+
+      // Топ-5 самых "зависших" помещений (дольше всего без движения статуса, от даты РНВ)
+      {
+        const stuck = [];
+        for (const key in this.units) {
+          const d = this.data[key];
+          if (!d || !d.rnv || d.rnvBuilt === false) continue;
+          for (const u of this.units[key]) {
+            if (u.status === 'Продано') continue;
+            const days = Math.floor((now - parseRu(d.rnv)) / 86400000);
+            stuck.push({ number: u.number, location: d.name, status: u.status, days });
+          }
+        }
+        stuck.sort((a, b) => b.days - a.days);
+        vals.topStuck = stuck.slice(0, 5);
+      }
+
+      // Разбивка по ликвидности внутри каждого статуса
+      {
+        const liqBreakdown = (matches) => {
+          const groups = {};
+          for (const key in this.units) {
+            for (const u of this.units[key]) {
+              if (matches(u)) groups[u.liq] = (groups[u.liq] || 0) + 1;
+            }
+          }
+          const order = ['Сверхликвидное', 'Высоколиквидное', 'Среднеликвидное'];
+          return order.filter(l => groups[l]).map(l => `${l}: ${groups[l]}`);
+        };
+        vals.notDeliveredLiq = liqBreakdown(u => u.status === 'Не передано в ДВК' || u.status === 'Не передано в ДВК (в аренде)' || u.status === 'В пользовании ГК (выдача ключей)');
+        vals.inProgressLiq = liqBreakdown(u => u.status === 'В процессе передачи в ДВК' || u.status === 'В аренде (от ГК)');
+      }
+
+      // Карта загрузки арендаторов по категориям
+      {
+        const categories = { '«Пятерочка»': 'Продуктовый ритейл', 'OZON + WB': 'Маркетплейс/ПВЗ' };
+        const cats = {};
+        for (const t of this.tenants) {
+          const cat = categories[t.tenant] || 'Прочее';
+          if (!cats[cat]) cats[cat] = { count: 0, area: 0, inactive: 0 };
+          cats[cat].count++;
+          cats[cat].area += parseFloat(t.area);
+          if (/договор не активен/.test(t.rate || '')) cats[cat].inactive++;
+        }
+        vals.tenantCategories = Object.keys(cats).map(c => {
+          const cat = cats[c];
+          const note = cat.inactive === cat.count ? ' — договоры не активны' : cat.inactive > 0 ? ` — ${cat.inactive} из ${cat.count} договоров не активны` : '';
+          return `${c}: ${cat.count} (${cat.area.toFixed(1)} м²)${note}`;
+        });
+      }
+
+      // Долг/просрочка по арендаторам
+      vals.tenantDebts = this.tenants.map(t => ({ tenant: t.tenant, location: t.location, debt: '—' }));
+      vals.notDeliveredAging = buildAging(u => u.status === 'Не передано в ДВК' || u.status === 'Не передано в ДВК (в аренде)' || u.status === 'В пользовании ГК (выдача ключей)', 'даты РНВ');
+      vals.inProgressAging = buildAging(u => u.status === 'В процессе передачи в ДВК' || u.status === 'В аренде (от ГК)', 'даты РНВ');
+      const buildNotBuilt = (matches) => {
+        let count = 0;
+        for (const key in this.units) {
+          const d = this.data[key];
+          if (!d || d.rnvBuilt !== false) continue;
+          for (const u of this.units[key]) { if (matches(u)) count++; }
+        }
+        return count > 0 ? [`${count} ${wordUnits(count)} — не построено`] : [];
+      };
+      vals.idleDvkNotBuilt = buildNotBuilt(u => u.status === 'В простое у ДВК');
+      vals.notDeliveredNotBuilt = buildNotBuilt(u => u.status === 'Не передано в ДВК' || u.status === 'Не передано в ДВК (в аренде)' || u.status === 'В пользовании ГК (выдача ключей)');
+      vals.inProgressNotBuilt = buildNotBuilt(u => u.status === 'В процессе передачи в ДВК' || u.status === 'В аренде (от ГК)');
+    }
+    vals.closeSummaryFilter = () => this.closeSummaryFilter();
+    if (this.state.summaryFilter) {
+      const filterKey = this.state.summaryFilter.key;
+      const pred = filterKey === '__notBuilt' ? (u => u.status !== 'Продано') : predicates[filterKey];
+      const list = [];
+      for (const key in this.units) {
+        const d = this.data[key];
+        const loc = (d && d.name) || key;
+        const rnv = d && d.rnv;
+        const rnvNotBuilt = d && d.rnvBuilt === false;
+        if (filterKey === '__notBuilt' && !rnvNotBuilt) continue;
+        for (const u of this.units[key]) {
+          if (pred(u)) {
+            const isGk = u.status === 'В аренде (от ГК)';
+            const isLiterKey = /^\d_\d$/.test(key);
+            list.push({ ...u, location: loc, rnv, rnvNotBuilt, rnvBuilt: !rnvNotBuilt, tt: u.tenant ? (this.ttByLocation[loc] || '') : '', displayStatus: isGk ? 'В процессе передачи в ДВК' : u.status, gkNote: isGk ? 'в аренде (от ГК)' : '', dolshchik: u.dduPrice ? (u.dolshchik || 'КЛАДПАРК ЛИЧНЫЙ ФОНД') : '', priceRefRent: u.status !== 'Продано' ? this.formatRub(parseFloat(u.area) * 2000) : '', priceRefMgmt: u.status !== 'Продано' ? this.formatRub(parseFloat(u.area) * 73) : '', idleCost: this.state.summaryFilter.key === 'idleDvk' ? this.formatRub(parseFloat(u.area) * 27) + '/мес' : '', liqColor: this.liqColors[u.liq] || 'transparent' });
+          }
+        }
+      }
+      vals.summaryFilterInfo = { label: this.state.summaryFilter.label, list };
+    } else {
+      vals.summaryFilterInfo = null;
+    }
+
+    return vals;
+  }
+}
+</script>
+</body>
+</html>

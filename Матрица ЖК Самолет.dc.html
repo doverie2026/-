@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body { margin: 0; }
+  a { color: #a3312b; }
+  a:hover { color: #7d251f; }
+</style>
+<script src="./unit_status.js"></script>
+<script src="./sales.js"></script>
+<script src="./prices_net.js"></script>
+<script src="./rent_price.js"></script>
+<script src="./utilities.js"></script>
+<script src="./costs_zpif.js"></script>
+<script src="./kp_rso.js"></script>
+<script src="./samolet3_plans.js"></script>
+<script src="./samolet4_plans.js"></script>
+<script src="./samolet5_plans.js"></script>
+<script src="./genplan_core.js"></script>
+<script src="./jk_logic.js"></script>
+<script src="./samolet1_data.js"></script>
+<script src="./samolet2_data.js"></script>
+<script src="./samolet3_data.js"></script>
+<script src="./samolet4_data.js"></script>
+<script src="./samolet5_data.js"></script>
+<script src="./samolet6_data.js"></script>
+<script src="./kp_addr.js"></script>
+<script src="./volumes.js"></script>
+<script src="./traffic.js"></script>
+<script src="./jk_summary.js"></script>
+<script src="./plan_geo.js"></script>
+</helmet>
+<div style="min-height: 100vh; background: {{ pageBg }}; color: {{ textColor }}; font-family: Georgia, 'Times New Roman', serif; padding: 22px 26px 40px;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+    <a href="Генплан интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Рекорд»</a>
+    <a href="Генплан Самолет 1 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 1»</a>
+    <a href="Генплан Самолет 2 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 2»</a>
+    <a href="Генплан Самолет 3 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 3»</a>
+    <a href="Генплан Самолет 4 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 4»</a>
+    <a href="Генплан Самолет 5 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 5»</a>
+    <a href="Генплан Самолет 6 интерактивный.dc.html" style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid {{ borderColor }}; background: transparent; color: {{ mutedColor }};">ЖК «Самолёт 6»</a>
+    <div style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid {{ textColor }}; background: {{ textColor }}; color: {{ pageBg }};">Матрица ЖК «Самолёт»</div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+    <div>
+      <div style="font-size: 26px; font-weight: 700; letter-spacing: 0.3px;">Матрица ЖК «Самолёт»</div>
+      <div style="font-size: 13px; color: {{ mutedColor }}; margin-top: 5px;">Коммерческие помещения по всем очередям — портфель, статусы, вакантность и обеспеченность жильцов. Данные на 01.09.2026.</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <div style="font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 6px; cursor: pointer; border: 1px solid #a3312b; background: {{ trafficBtnBg }}; color: {{ trafficBtnFg }};" style-hover="opacity: 0.85;" onClick="{{ toggleTraffic }}">Карта трафика</div>
+    <div style="display: flex; border: 1px solid {{ borderColor }}; border-radius: 6px; overflow: hidden; flex-shrink: 0;">
+      <div style="font-size: 12.5px; font-weight: 700; padding: 6px 14px; cursor: pointer; background: {{ modeCountBg }}; color: {{ modeCountFg }};" onClick="{{ setModeCount }}">Помещения, шт</div>
+      <div style="font-size: 12.5px; font-weight: 700; padding: 6px 14px; cursor: pointer; border-left: 1px solid {{ borderColor }}; background: {{ modeAreaBg }}; color: {{ modeAreaFg }};" onClick="{{ setModeArea }}">Площадь, м²</div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ trafficVisible }}" hint-placeholder-val="{{ false }}">
+    <div style="background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 8px; padding: 16px 18px; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px; flex-wrap: wrap;">
+        <div style="font-size: 16px; font-weight: 700;">Карта трафика · генплан ЖК «Самолёт»</div>
+        <div style="font-size: 12px; color: {{ mutedColor }};">{{ trafficTotal }}</div>
+      </div>
+      <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 4px; line-height: 1.6; max-width: 900px;">{{ trafficNote }}</div>
+      <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 4px; line-height: 1.6; max-width: 900px;">{{ geoNote }}</div>
+      <div style="position: relative; margin-top: 14px; border: 1px solid {{ borderColor }}; border-radius: 8px; overflow: hidden; background: #fff;">
+        <img src="assets/master_genplan.jpg" alt="Генплан ЖК «Самолёт» — все очереди" style="width: 100%; display: block;">
+        <sc-for list="{{ geoPins }}" as="pn" hint-placeholder-count="40">
+          <div style="position: absolute; left: {{ pn.left }}; top: {{ pn.top }}; transform: translate(-50%, -50%); width: {{ pn.size }}; height: {{ pn.size }}; border-radius: {{ pn.radius }}; clip-path: {{ pn.clip }}; background: {{ pn.outerColor }}; border: {{ pn.ring }} solid #ffffff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); z-index: 2; display: flex; justify-content: center;" title="{{ pn.title }}">
+            <sc-if value="{{ pn.big }}" hint-placeholder-val="{{ false }}">
+              <div style="width: {{ pn.innerSize }}; height: {{ pn.innerSize }}; margin-top: {{ pn.innerTop }}; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); background: {{ pn.color }};"></div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px;">
+        <sc-for list="{{ catLegend }}" as="cl" hint-placeholder-count="8">
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: {{ textColor }};">
+            <div style="width: 10px; height: 10px; border-radius: 3px; background: {{ cl.color }};"></div>
+            <div>{{ cl.name }} · {{ cl.total }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #a89f8f; margin: 18px 0 0;">Размещение арендаторов по категориям</div>
+      <div style="overflow-x: auto; margin-top: 8px;">
+        <div style="min-width: 620px;">
+          <div style="display: grid; grid-template-columns: minmax(190px, 1.6fr) repeat(6, minmax(58px, 1fr)) 62px; font-size: 11px; font-weight: 700; color: {{ mutedColor }}; border-bottom: 2px solid {{ textColor }}; padding: 0 4px 7px;">
+            <div>Категория</div>
+            <sc-for list="{{ catCols }}" as="cc" hint-placeholder-count="6">
+              <div style="text-align: center;">{{ cc }}</div>
+            </sc-for>
+            <div style="text-align: right;">Всего</div>
+          </div>
+          <sc-for list="{{ catRows }}" as="cr" hint-placeholder-count="8">
+            <div style="display: grid; grid-template-columns: minmax(190px, 1.6fr) repeat(6, minmax(58px, 1fr)) 62px; font-size: 12.5px; padding: 7px 4px; border-bottom: 1px solid {{ borderColor }}; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 10px; height: 10px; border-radius: 3px; background: {{ cr.color }}; flex-shrink: 0;"></div>
+                <div>{{ cr.name }}</div>
+                <div style="font-size: 10px; color: {{ mutedColor }};">вес {{ cr.weight }}</div>
+              </div>
+              <sc-for list="{{ cr.cells }}" as="cv" hint-placeholder-count="6">
+                <div style="text-align: center; font-weight: {{ cv.weight }}; color: {{ cv.fg }}; background: {{ cv.bg }}; border-radius: 4px; padding: 3px 0;">{{ cv.text }}</div>
+              </sc-for>
+              <div style="text-align: right; font-weight: 700;">{{ cr.total }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(150px, 1fr) 86px 86px minmax(240px, 2fr); gap: 0; font-size: 11.5px; font-weight: 700; color: {{ mutedColor }}; border-bottom: 2px solid {{ textColor }}; padding: 12px 4px 8px; margin-top: 16px;">
+        <div>Очередь</div>
+        <div style="text-align: right;">Магнитов</div>
+        <div style="text-align: right;">Индекс</div>
+        <div style="padding-left: 16px;">Сильнейшие категории</div>
+      </div>
+      <sc-for list="{{ trafficRows }}" as="tr" hint-placeholder-count="6">
+        <div style="display: grid; grid-template-columns: minmax(150px, 1fr) 86px 86px minmax(240px, 2fr); gap: 0; font-size: 13px; padding: 9px 4px; border-bottom: 1px solid {{ borderColor }}; align-items: baseline;">
+          <div style="font-weight: 700;">{{ tr.name }}</div>
+          <div style="text-align: right;">{{ tr.magnets }}</div>
+          <div style="text-align: right;"><span style="display: inline-block; padding: 2px 9px; border-radius: 11px; font-size: 12px; font-weight: 700; background: {{ tr.idxBg }}; color: {{ textColor }};">{{ tr.idx }}</span></div>
+          <div style="padding-left: 16px; font-size: 12px; color: {{ mutedColor }};">{{ tr.cats }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-top: 6px; padding-top: 16px; border-top: 1px solid {{ borderColor }};">
+    <div style="font-size: 17px; font-weight: 700;">Сводка по ЖК «Самолёт» — все очереди</div>
+    <div style="font-size: 11px; color: {{ mutedColor }};">{{ rollNote }}</div>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">Статус в ДВК</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ dvkTiles }}" as="t" hint-placeholder-count="5">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">Использование</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ useTiles }}" as="t" hint-placeholder-count="5">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">НТО, остановки и ЗУ</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ ntoTiles }}" as="t" hint-placeholder-count="5">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">Доходность</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ yieldTiles }}" as="t" hint-placeholder-count="10">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">Стройка и контроль</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ buildTiles }}" as="t" hint-placeholder-count="3">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+
+  <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+    <div style="position: relative; flex: 1; min-width: 220px;">
+      <div style="padding: 14px 22px; border-radius: 8px; background: #a3312b; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; text-align: center;" style-hover="opacity: 0.85;" onClick="{{ toggleProblems }}">Проблемы</div>
+      <sc-if value="{{ problemsVisible }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 20; min-width: 460px; max-width: 92vw; max-height: 70vh; overflow-y: auto; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 14px 18px;">
+          <div style="font-size: 11px; color: {{ mutedColor }}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Проблемы по очередям</div>
+          <div style="font-size: 11px; color: {{ mutedColor }}; margin-bottom: 10px; line-height: 1.5;">{{ problemsNote }}</div>
+          <sc-for list="{{ problemGroups }}" as="g" hint-placeholder-count="4">
+            <div style="margin-top: 12px;">
+              <div style="font-size: 12px; font-weight: 700; color: {{ textColor }};">{{ g.name }}</div>
+              <sc-for list="{{ g.rows }}" as="p" hint-placeholder-count="3">
+                <div style="padding: 6px 0; border-top: 1px solid {{ borderColor }};">
+                  <div style="font-size: 12.5px; color: {{ textColor }};">{{ p.title }}</div>
+                  <div style="font-size: 12px; font-weight: 700; color: {{ p.color }}; margin-top: 2px;">{{ p.verdict }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <div style="position: relative; flex: 1; min-width: 220px;">
+      <div style="padding: 14px 22px; border-radius: 8px; background: #2b2a27; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; text-align: center;" style-hover="opacity: 0.85;" onClick="{{ toggleEfficiency }}">Маркеры эффективности</div>
+      <sc-if value="{{ efficiencyVisible }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 20; min-width: 500px; max-width: 92vw; max-height: 70vh; overflow-y: auto; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 16px 20px;">
+          <div style="font-size: 11px; color: {{ mutedColor }}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">Маркеры эффективности УК</div>
+          <div style="font-size: 11px; color: {{ mutedColor }}; margin-bottom: 6px; line-height: 1.5;">по каждой очереди — те же маркеры, что в её сводке</div>
+          <sc-for list="{{ effGroups }}" as="g" hint-placeholder-count="6">
+            <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid {{ borderColor }};">
+              <div style="font-size: 12.5px; font-weight: 700; color: {{ textColor }}; margin-bottom: 4px;">{{ g.name }}</div>
+              <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="10">
+                <div style="font-size: {{ r.size }}; font-weight: {{ r.weight }}; color: {{ r.color }}; text-transform: {{ r.tt }}; letter-spacing: 0.4px; margin: {{ r.mt }} 0 4px;" title="{{ r.hint }}">{{ r.text }}</div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">Финансы</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ finTiles }}" as="t" hint-placeholder-count="4">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 20px 0 8px;">Квартальная динамика договоров аренды</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+    <sc-for list="{{ qTiles }}" as="t" hint-placeholder-count="5">
+      <div style="padding: 14px 18px; border-radius: 8px; background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-top: 3px solid {{ t.accent }}; min-width: 0;" title="{{ t.hint }}">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 700; color: {{ t.accent }};">{{ t.label }}</div>
+        <div style="font-size: {{ t.size }}; font-weight: 700; color: {{ t.color }}; line-height: 1.15; overflow-wrap: anywhere;">{{ t.value }}</div>
+        <div style="font-size: 11.5px; color: {{ mutedColor }}; margin-top: 3px; line-height: 14px; text-wrap: pretty;">{{ t.sub }}</div>
+        <div style="font-size: 10px; color: {{ mutedColor }}; margin-top: 5px; line-height: 13.5px; text-wrap: pretty;">{{ t.note }}</div>
+        <div style="font-size: 10px; color: #a09789; margin-top: 3px; line-height: 13.5px; text-wrap: pretty;">{{ t.note2 }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 10px; color: #a89f8f; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin: 24px 0 8px;">Разрез по очередям</div>
+  <div style="background: {{ cardBg }}; border: 1px solid {{ borderColor }}; border-radius: 8px; overflow-x: auto;">
+    <div style="min-width: 940px;">
+      <div style="display: grid; grid-template-columns: minmax(170px, 1.4fr) repeat(4, minmax(84px, 1fr)) minmax(96px, 1.1fr) minmax(104px, 1.1fr) minmax(96px, 1fr) minmax(104px, 1fr); gap: 0; font-size: 11.5px; font-weight: 700; color: {{ mutedColor }}; border-bottom: 2px solid {{ textColor }}; padding: 12px 16px; letter-spacing: 0.2px;">
+        <div style="cursor: pointer;" onClick="{{ sortByName }}">Жилой комплекс</div>
+        <div style="text-align: right; cursor: pointer;" onClick="{{ sortByTotal }}">Всего</div>
+        <div style="text-align: right; cursor: pointer;" onClick="{{ sortBySold }}">Продано</div>
+        <div style="text-align: right; cursor: pointer;" onClick="{{ sortByRent }}">В аренде</div>
+        <div style="text-align: right; cursor: pointer;" onClick="{{ sortByFree }}">Свободно</div>
+        <div style="text-align: right;">Не введено</div>
+        <div style="text-align: right; cursor: pointer;" onClick="{{ sortByVac }}">Вакантность</div>
+        <div style="text-align: right; cursor: pointer;" onClick="{{ sortByRes }}">Жильцов</div>
+        <div style="text-align: right;">Коммерции</div>
+      </div>
+
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+        <div style="display: grid; grid-template-columns: minmax(170px, 1.4fr) repeat(4, minmax(84px, 1fr)) minmax(96px, 1.1fr) minmax(104px, 1.1fr) minmax(96px, 1fr) minmax(104px, 1fr); gap: 0; font-size: 13px; padding: 11px 16px; border-bottom: 1px solid {{ borderColor }}; align-items: baseline;" style-hover="background: {{ hoverBg }};">
+          <div style="font-weight: 700;"><a href="{{ r.href }}" style="text-decoration: none; color: {{ textColor }};" style-hover="color: #a3312b;">{{ r.name }}</a><div style="font-size: 11px; font-weight: 400; color: {{ mutedColor }}; margin-top: 2px;">{{ r.note }}</div></div>
+          <div style="text-align: right; font-weight: 700;">{{ r.total }}</div>
+          <div style="text-align: right;">{{ r.sold }}</div>
+          <div style="text-align: right;">{{ r.rent }}</div>
+          <div style="text-align: right;">{{ r.free }}</div>
+          <div style="text-align: right; color: {{ mutedColor }};">{{ r.other }}</div>
+          <div style="text-align: right;"><span style="display: inline-block; padding: 2px 9px; border-radius: 11px; font-size: 12px; font-weight: 700; background: {{ r.vacBg }}; color: {{ r.vacFg }};">{{ r.vac }}</span></div>
+          <div style="text-align: right;">{{ r.residents }}</div>
+          <div style="text-align: right; color: {{ mutedColor }};">{{ r.perRes }}</div>
+        </div>
+      </sc-for>
+
+      <div style="display: grid; grid-template-columns: minmax(170px, 1.4fr) repeat(4, minmax(84px, 1fr)) minmax(96px, 1.1fr) minmax(104px, 1.1fr) minmax(96px, 1fr) minmax(104px, 1fr); gap: 0; font-size: 13px; font-weight: 700; padding: 13px 16px; border-top: 1px solid {{ textColor }};">
+        <div>{{ totalLabel }}</div>
+        <div style="text-align: right;">{{ tTotal }}</div>
+        <div style="text-align: right;">{{ tSold }}</div>
+        <div style="text-align: right;">{{ tRent }}</div>
+        <div style="text-align: right;">{{ tFree }}</div>
+        <div style="text-align: right; color: {{ mutedColor }};">{{ tOther }}</div>
+        <div style="text-align: right;">{{ tVac }}</div>
+        <div style="text-align: right;">{{ tRes }}</div>
+        <div style="text-align: right; color: {{ mutedColor }};">{{ tPerRes }}</div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div style="font-size: 12px; color: {{ mutedColor }}; margin-top: 18px; line-height: 1.65; max-width: 900px;">
+    {{ saleConflicts }} {{ ntoLine }} Сводка собрана не заново: для каждой очереди вызывается её собственный расчёт сводки с генплана, матрица только суммирует результаты — поэтому цифры плиток и разреза совпадают со сводками генпланов по построению. Правка карточки помещения сразу меняет свод. Статусы вычисляются как в карточке: «Продано» — по выгрузке КП, остальное — по реестру договоров аренды и дате РНВ. {{ fallbackNote }} «В аренде» — договор есть (включая арендные каникулы), «Свободно» — дом введён, арендатора нет, «Не введено» — нет РНВ или стройготовности. Вакантность — доля свободной площади в сдаваемом фонде (свободно ÷ [свободно + в аренде]); проданное и не введённое не учитываются. Отдельно стоящая коммерция С3–С5 входит в свод, НТО, остановки и ЗУ — отдельным разделом. Рыночная ставка для помещений бульвара берётся из прайса «Бульвар Самолет» (09.09.2026), для остальных — медиана действующих ставок ЖК. Численность жильцов — по объёмам ХВС из выгрузок УК и нормативу 4,04 м³ на человека в месяц; расчётный месяц указан у каждой очереди. Кликните название ЖК, чтобы открыть его генплан.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:820},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;},&quot;unitMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;area&quot;,&quot;count&quot;],&quot;default&quot;:&quot;area&quot;,&quot;tsType&quot;:&quot;'area' | 'count'&quot;,&quot;section&quot;:&quot;Матрица&quot;}}">
+class Component extends DCLogic {
+  state = { mode: null, sort: null, dir: 1 };
+
+  // Матрица считается на рантайме из карточек помещений каждого ЖК (window.__SM_DATA_N)
+  // и объёмов УК; ниже — только паспорт очередей (имя, ссылка, ключ данных).
+  jks = [
+    { key: 's1', data: 1, name: 'ЖК «Самолёт 1»', href: 'Генплан Самолет 1 интерактивный.dc.html', label: 'ЗО 39/2', mx: 23, my: 70 },
+    { key: 's2', data: 2, name: 'ЖК «Самолёт 2»', href: 'Генплан Самолет 2 интерактивный.dc.html', label: 'ЗО 57', mx: 56, my: 70 },
+    { key: 's3', data: 3, name: 'ЖК «Самолёт 3»', href: 'Генплан Самолет 3 интерактивный.dc.html', label: 'литеры 13–18', extra: true, mx: 17, my: 50 },
+    { key: 's4', data: 4, name: 'ЖК «Самолёт 4»', href: 'Генплан Самолет 4 интерактивный.dc.html', label: 'литеры 19–24', volMonth: 'Июль', extra: true, mx: 46, my: 47 },
+    { key: 's5', data: 5, name: 'ЖК «Самолёт 5»', href: 'Генплан Самолет 5 интерактивный.dc.html', label: 'литеры 25–30', extra: true, mx: 72, my: 47 },
+    { key: 's6', data: 6, name: 'ЖК «Самолёт 6»', href: 'Генплан Самолет 6 интерактивный.dc.html', label: 'литеры 31–66', mx: 50, my: 17 },
+  ];
+
+  // группировка: sold / rent (договор есть) / free (простой) / other (нет РНВ)
+  groupOf(status) {
+    var s = String(status || '');
+    if (/Продано/.test(s)) return 'sold';
+    if (/арендатором|^В аренде/.test(s)) return 'rent';
+    if (/В простое|Свободно|Доступно для аренды/.test(s)) return 'free';
+    return 'other';
+  }
+
+  areaOf(u) {
+    var a = parseFloat(String(u && u.area || '').replace(/\s/g, '').replace(/[^\d,.]/g, '').replace(',', '.'));
+    return isFinite(a) ? a : 0;
+  }
+
+  // строка очереди из её собственной сводки (те же статусы, что в плитках выше)
+  rowOf(r) {
+    const c = (k) => (r.agg[k] && r.agg[k].c) || 0;
+    const a = (k) => Math.round((r.agg[k] && r.agg[k].a) || 0);
+    return {
+      n: c('total'), area: a('total'),
+      sold: [c('sold'), a('sold')],
+      rent: [c('uLeased') + c('uIdleT'), a('uLeased') + a('uIdleT')],
+      free: [c('uIdle'), a('uIdle')],
+      other: [c('uNv') + c('uNvT'), a('uNv') + a('uNvT')],
+      nto: [c('nto'), a('nto')], ntoRent: [c('ntoLeased'), a('ntoLeased')],
+    };
+  }
+
+  // сводка по одному ЖК прямо из его карточек
+  aggregate(jk) {
+    var src = window['__SM_DATA_' + jk.data];
+    var units = src && src.units;
+    if (!units) return null;
+    if (window.OMStatus) window.OMStatus.apply(src);
+    // отдельно стоящая коммерция живёт в поэтажных планах — в сводках генпланов она учтена
+    var all = {};
+    for (var uk in units) all[uk] = units[uk];
+    // отдельно стоящую коммерцию включаем там, где её учитывает сводка генплана
+    var extra = jk.extra ? (src.extraUnits || {}) : {};
+    var isExtra = {};
+    for (var ek in extra) if (!all[ek]) { all[ek] = extra[ek]; isExtra[ek] = true; }
+    var row = { n: 0, area: 0, sold: [0, 0], rent: [0, 0], free: [0, 0], other: [0, 0], nto: [0, 0], ntoRent: [0, 0] };
+    for (var key in all) {
+      var list = all[key] || [];
+      // НТО, аренда ЗУ и остановки — отдельной строкой, в основной свод не входят
+      if (/^(nto|zu|stop)/.test(key)) {
+        for (var q = 0; q < list.length; q++) {
+          var qa = this.areaOf(list[q]);
+          row.nto[0]++; row.nto[1] += qa;
+          if (this.groupOf(list[q].cardStatus) === 'rent' || /в аренде/i.test(list[q].status || '')) { row.ntoRent[0]++; row.ntoRent[1] += qa; }
+        }
+        continue;
+      }
+      for (var i = 0; i < list.length; i++) {
+        var a = this.areaOf(list[i]);
+        // статус уже проставлен в данных (unit_status.js) — тот же, что в карточке
+        var g = this.groupOf(list[i].cardStatus);
+        row.n++; row.area += a;
+        row[g][0]++; row[g][1] += a;
+      }
+    }
+    row.area = Math.round(row.area);
+    ['sold', 'rent', 'free', 'other', 'nto', 'ntoRent'].forEach(function (k) { row[k][1] = Math.round(row[k][1]); });
+    return row;
+  }
+
+  // жильцы: те же объёмы УК и адреса литеров, что в кнопке «Заселенность»
+  residentsOf(jk) {
+    if (!window.OMVolumes || !window.OMKpAddr) return null;
+    var probe = { utilities: {}, literAddr: {}, cadastre: {}, units: {}, volMonth: jk.volMonth || null };
+    window.OMKpAddr.apply(probe, jk.key);
+    var info = window.OMVolumes.fill(probe);
+    if (!info || !info.month) return null;
+    var d = probe.utilities[info.month];
+    if (!d || typeof d.water !== 'number') return null;
+    return { residents: Math.round(d.water / 4.04), month: info.month, houses: info.houses };
+  }
+
+  ru(n, d) { return Number(n).toLocaleString('ru-RU', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+
+  // ——— Доходность по очередям ———
+  // Считается из тех же данных, что и сводки генпланов: реестр аренды (tenantsReg),
+  // рыночные цены помещений и OPEX = площадь × 200 000 ₽/м².
+  parseRub(s) {
+    var v = parseFloat(String(s || '').replace(/[\s\u00a0]/g, '').replace(/[^\d,.-]/g, '').replace(',', '.'));
+    return isFinite(v) ? v : null;
+  }
+  monthlyRate(s) {
+    var m = String(s || '').match(/·\s*([\d\s\u00a0]+)\s*₽\/мес/);
+    return m ? (parseFloat(m[1].replace(/[\s\u00a0]/g, '')) || 0) : 0;
+  }
+  dateRu(s) { var m = String(s || '').match(/(\d{2})\.(\d{2})\.(\d{4})/); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; }
+  // начислено аренды за 01.01–31.08.2026 по договору
+  rentAccrued2026(r) {
+    var A = new Date(2026, 0, 1), B = new Date(2026, 7, 31);
+    var start = this.dateRu(r.holiday) || this.dateRu(r.contract) || A;
+    var segs = [];
+    if (r.rates && r.rates.length) {
+      for (var i = 0; i < r.rates.length; i++) segs.push({ f: this.dateRu(r.rates[i].from) || A, t: this.dateRu(r.rates[i].till) || B, m: this.monthlyRate(r.rates[i].rate) });
+    } else {
+      var pr = String(r.ratePeriod || '').split('—');
+      segs.push({ f: this.dateRu(pr[0]) || start, t: this.dateRu(pr[1]) || B, m: this.monthlyRate(r.rate) });
+    }
+    var sum = 0;
+    for (var k = 0; k < segs.length; k++) {
+      var s = segs[k]; if (!s.m) continue;
+      var f = new Date(Math.max(A.getTime(), s.f.getTime(), start.getTime()));
+      var tt = new Date(Math.min(B.getTime(), s.t.getTime()));
+      if (tt < f) continue;
+      sum += s.m * 12 / 365 * ((tt - f) / 86400000 + 1);
+    }
+    return sum;
+  }
+  finOf(jk) {
+    var src = window['__SM_DATA_' + jk.data];
+    if (!src || !src.units) return null;
+    if (window.OMStatus) window.OMStatus.apply(src);
+    var units = {};
+    for (var k in src.units) units[k] = src.units[k];
+    if (jk.extra) { var ex = src.extraUnits || {}; for (var e in ex) if (!units[e]) units[e] = ex[e]; }
+    var reg = src.tenantsReg || {}, rnv = src.rnv || {};
+    // реестр С1 ведётся без привязки к номерам помещений — аренду по нему сопоставить нельзя
+    var noUnitReg = false, hasUnmatched = false;
+    for (var rk in reg) { var rl = reg[rk] || []; for (var ri = 0; ri < rl.length; ri++) if (!rl[ri].unit) noUnitReg = true; }
+    var unsold = 0, opex = 0, rent = 0, opexG = 0, growth = 0, noiG = 0, shortRnv = false;
+    for (var key in units) {
+      if (/^(nto|zu|stop)/.test(key)) continue;
+      var list = units[key] || [];
+      for (var i = 0; i < list.length; i++) {
+        var u = list[i];
+        if (/Продано/.test(u.cardStatus || u.status || '')) continue;
+        var a = this.areaOf(u), ox = a * 200000, price = this.parseRub(u.price);
+        var num = String(u.number || '').split(',')[0].trim();
+        var r = (reg[key] || []).filter(function (x) { return x.unit === num; })[0];
+        var acc = r ? this.rentAccrued2026(r) : 0;
+        if (!r && noUnitReg) hasUnmatched = true;
+        opex += ox; rent += acc;
+        if (price) unsold += price;
+        var dm = this.dateRu(rnv[String(key).split('_')[0]] || rnv[key]);
+        if (price && dm) {
+          var years = (new Date(2026, 7, 31) - dm) / 31557600000;
+          if (years > 0) {
+            // при сроке с РНВ меньше года прирост не аннуализируем — иначе доходность кратно завышается
+            if (years < 1) shortRnv = true;
+            growth += (price - ox) / Math.max(1, years);
+            opexG += ox; noiG += acc * 12 / 8;
+          }
+        }
+      }
+    }
+    var noData = noUnitReg && rent === 0;
+    return {
+      unsold: unsold, opex: opex, noi: noData ? null : rent, noData: noData, shortRnv: shortRnv,
+      cap: (!noData && opex > 0) ? rent * 12 / 8 / opex * 100 : null,
+      total: (!noData && opexG > 0) ? (noiG + growth) / opexG * 100 : null,
+    };
+  }
+
+  // склонение: 1 дом / 2 дома / 5 домов
+  plural(n, one, few, many) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return many;
+    if (b > 1 && b < 5) return few;
+    if (b === 1) return one;
+    return many;
+  }
+  nPlural(n, one, few, many) { return this.ru(n) + ' ' + this.plural(n, one, few, many); }
+
+  componentDidMount() {
+    // данные ЖК и объёмы подключаются в helmet — ждём загрузки и пересчитываем
+    let tries = 0;
+    this._t = setInterval(() => {
+      tries++;
+      const ready = this.jks.every((j) => window['__SM_DATA_' + j.data]) && window.OMVolumes && window.OMKpAddr && window.OMStatus && window.OMGeo && window.OMTraffic && window.OMJKLogic && window.GenplanCore && window.OMRentPrice && window.OMUtil && window.OMSales;
+      if (ready || tries > 40) { clearInterval(this._t); this._roll = null; this.forceUpdate(); }
+    }, 150);
+  }
+
+  componentWillUnmount() { clearInterval(this._t); }
+
+  // сколько помещений посчитано по статусу выгрузки (С1 — реестр без номеров помещений)
+  fallbackStats() {
+    const st = { n: 0, area: 0 };
+    if (!window.OMStatus) return st;
+    for (const jk of this.jks) {
+      const src = window['__SM_DATA_' + jk.data];
+      if (!src || window.OMStatus.regHasUnits(src)) continue;
+      // cardStatus проставляет только OMStatus.apply; свод его не зовёт — считаем статусы здесь
+      window.OMStatus.apply(src);
+      for (const k in (src.units || {})) for (const u of src.units[k]) {
+        if (u.cardStatus === 'В аренде' && !/Продано|процессе оформления/i.test(u.status || '')) {
+          const reg = (src.tenantsReg && src.tenantsReg[k]) || [];
+          const num = String(u.number).split(',')[0].trim();
+          if (reg.some((r) => r.unit && String(r.unit) === num)) continue;
+          st.n++; st.area += this.areaOf(u);
+        }
+      }
+    }
+    st.area = Math.round(st.area);
+    return st;
+  }
+
+
+  // ——— Свод по всем очередям по правилам «Сводки по ЖК» ———
+  // Считается не заново: для каждой очереди берётся её собственный класс логики генплана
+  // (jk_logic.js, сгенерирован из «Генплан Самолет N интерактивный.dc.html») и вызывается
+  // тот же summaryExtra, что рисует сводку на генплане. Матрица только суммирует результаты,
+  // поэтому цифры здесь и на генпланах совпадают по построению.
+  rollup() {
+    if (this._roll) return this._roll;
+    if (!window.OMJKLogic) return null;
+    const Base = Object.getPrototypeOf(this.constructor);
+    const out = [];
+    for (const jk of this.jks) {
+      if (!window['__SM_DATA_' + jk.data] || !window.OMJKLogic[jk.data]) return null;
+      let vals = {};
+      try {
+        const Cls = window.OMJKLogic[jk.data](Base);
+        const inst = new Cls();
+        inst.props = {}; inst.state = {};
+        inst.setState = () => {}; inst.forceUpdate = () => {};
+        inst.componentDidMount();
+        inst.summaryExtra(vals);
+        out.push({ jk: jk, vals: vals, agg: vals.__agg || {}, y: vals.__y || {} });
+      } catch (e) { out.push({ jk: jk, vals: {}, agg: {}, y: {}, err: String(e && e.message || e) }); }
+    }
+    this._roll = out;
+    return out;
+  }
+
+  // «1 234 567 ₽/мес» → 1234567
+  numOf(v) {
+    const m = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').match(/-?\d+(?:[.,]\d+)?/);
+    return m ? parseFloat(m[0].replace(',', '.')) : null;
+  }
+
+  rollVals(vals, th) {
+    const R = this.rollup();
+    if (!R) { vals.rollNote = 'идёт расчёт по шести очередям…'; ['dvkTiles','useTiles','ntoTiles','yieldTiles','buildTiles','finTiles','qTiles','problemGroups','effGroups'].forEach((k) => { vals[k] = []; });
+      vals.problemsNote = ''; vals.saleConflicts = ''; vals.problemsVisible = false; vals.efficiencyVisible = false;
+      vals.toggleProblems = () => {}; vals.toggleEfficiency = () => {}; return; }
+    const errs = R.filter((r) => r.err);
+    const ru = (n) => this.ru(Math.round(n));
+    const rub = (n) => ru(n) + ' ₽';
+    const area = (n) => ru(n) + ' м²';
+    const f1 = (n) => this.ru(n, 1) + '%';
+    const C = (k) => R.reduce((a, r) => a + ((r.agg[k] && r.agg[k].c) || 0), 0);
+    const Ar = (k) => R.reduce((a, r) => a + ((r.agg[k] && r.agg[k].a) || 0), 0);
+    const Y = (k) => R.reduce((a, r) => a + (r.y[k] || 0), 0);
+    const V = (k) => R.reduce((a, r) => a + (this.numOf(r.vals[k]) || 0), 0);
+    const norm = 14;
+    const col = (v) => v === null ? th.muted : (v >= norm ? '#3a7a42' : '#c98a2b');
+    const GREEN = '#3a7a42', RED = '#a3312b', ORANGE = '#c98a2b', GREY = '#948f83';
+    const T = (label, value, sub, note, accent, note2, color, size, hint) => ({
+      label: label, value: value, sub: sub || '', note: note || '', note2: note2 || '',
+      accent: accent || GREY, color: color || (accent === GREY || !accent ? th.text : accent),
+      size: size || '26px', hint: hint || '',
+    });
+
+    {
+      const st = this.fallbackStats();
+      vals.fallbackNote = st.n
+        ? 'По ' + this.nPlural(st.n, 'помещению', 'помещениям', 'помещениям') + ' (' + this.ru(st.area) + ' м²) реестр договоров ведётся без номеров помещений, поэтому статус взят из выгрузки КП.'
+        : '';
+      const ntoN = C('nto'), ntoA = Ar('nto'), ntoRN = C('ntoLeased');
+      vals.ntoLine = ntoN
+        ? 'НТО, остановки и аренда ЗУ: ' + this.nPlural(ntoN, 'объект', 'объекта', 'объектов')
+          + (ntoA ? ' · ' + this.ru(Math.round(ntoA)) + ' м²' : '') + ', из них в аренде ' + ntoRN + '.'
+        : '';
+    }
+    // покрытие: по скольким проданным помещениям отчёт о сделках вообще содержит сумму
+    let dealN = 0, soldN = 0; const thin = [];
+    for (const r of R) {
+      const jk = r.jk.data, S = (window.OMSales && window.OMSales[jk]) || {};
+      let d = 0; for (const k in S) d += Object.keys(S[k]).length;
+      const sc = (r.agg.sold && r.agg.sold.c) || 0;
+      dealN += d; soldN += sc;
+      if (d < sc) thin.push('С' + jk + ' ' + d + '/' + sc);
+    }
+    const soldGap = thin.length
+      ? 'сделки известны по ' + this.ru(dealN) + ' из ' + this.ru(soldN) + ' проданных помещений (' + thin.join(', ') + ')'
+      : '';
+    {
+      const cf = (window.OMSales && window.OMSales.conflicts) || [];
+      vals.saleConflicts = cf.length
+        ? 'Ещё ' + this.nPlural(cf.length, 'сделка', 'сделки', 'сделок') + ' из отчёта от 02.09.2026 в свод не вошли: '
+          + cf.map((c) => 'С' + c.jk + ' ' + String(c.key).replace('_', ', подъезд ') + ', пом. ' + c.number + ' (' + c.date + ')').join('; ')
+          + ' — в выгрузке КП от 13.07.2026 эти помещения ещё не проданы, и статус берётся из выгрузки.'
+        : '';
+    }
+    vals.rollNote = 'данные на 01.09.2026 · шесть очередей' + (errs.length ? ' · не сошлось: ' + errs.map((e) => e.jk.name).join(', ') : '');
+
+    // Статус в ДВК
+    vals.dvkTiles = [
+      T('Всего помещений', ru(C('total')), area(Ar('total')), 'НТО, остановки и ЗУ учтены отдельной строкой'),
+      T('Продано', ru(C('sold')), area(Ar('sold')), 'фактические продажи: ' + rub(V('soldSum')), GREEN, soldGap),
+      T('Передано в ДВК', ru(C('dvkOwned')), area(Ar('dvkOwned')), 'литеры и отдельно стоящая коммерция в ДВК', GREEN),
+      T('Не передано в ДВК', ru(C('notdvk')), area(Ar('notdvk')), 'остаётся в контуре ГК', RED),
+      T('В процессе передачи', '0', '0 м²', 'все объекты переданы', ORANGE),
+    ];
+
+    // Использование
+    const flowM = V('uLeasedMonth'), flowMax = V('uLeasedMaxFlow') / 12;
+    const effU = flowMax ? flowM / flowMax * 100 : null;
+    vals.useTiles = [
+      T('В аренде', ru(C('uLeased')), area(Ar('uLeased')), 'поток: ' + rub(flowM) + '/мес', GREEN,
+        'эконом. эффективность: ' + (effU === null ? '—' : f1(effU)) + ' · максимум ' + rub(flowMax * 12) + '/год'),
+      T('В простое с арендатором', ru(C('uIdleT')), area(Ar('uIdleT')), 'стартовые каникулы', ORANGE),
+      T('В простое', ru(C('uIdle')), area(Ar('uIdle')), 'РНВ есть, арендатора нет', RED),
+      T('Не введено, с арендатором', ru(C('uNvT')), area(Ar('uNvT')), 'договор есть, нет РНВ или стройготовности'),
+      T('Не введено в эксплуатацию', ru(C('uNv')), area(Ar('uNv')), 'без арендатора, нет РНВ или стройготовности'),
+    ];
+
+    // НТО
+    const ntoM = V('ntoRentSum'), ntoMax = V('ntoMaxFlow') / 12;
+    const effN = ntoMax ? ntoM / ntoMax * 100 : null;
+    vals.ntoTiles = [
+      T('Всего НТО и ЗУ', ru(C('nto')), area(Ar('nto')), 'в «Всего помещений» не входят'),
+      T('В аренде', ru(C('ntoLeased')), area(Ar('ntoLeased')), 'каникулы закончены', GREEN),
+      T('В простое с арендатором', ru(C('ntoIdleT')), area(Ar('ntoIdleT')), 'договор есть, каникулы идут', ORANGE),
+      T('В простое', ru(C('ntoIdle')), area(Ar('ntoIdle')), 'без договора аренды', RED),
+      T('Арендная плата', rub(ntoM) + '/мес', 'максимум ' + rub(ntoMax * 12) + '/год',
+        'эконом. эффективность: ' + (effN === null ? '—' : f1(effN)), GREY, '', th.text, '20px'),
+    ];
+
+    // Доходность
+    const noiF = Y('noiFact'), noiY = Y('noiY'), opexS = Y('opexS'), priceS = Y('priceS'),
+      noiYp = Y('noiYp'), growS = Y('growS'), noiYg = Y('noiYg'), opexG = Y('opexG'),
+      backS = Y('backS'), dynS = Y('dynS');
+    const capPct = priceS > 0 ? noiYp / priceS * 100 : null;
+    const yocPct = opexS > 0 ? noiY / opexS * 100 : null;
+    const fullPct = priceS > 0 ? (noiYp + dynS) / priceS * 100 : null;
+    const totPct = opexG > 0 ? (noiYg + growS) / opexG * 100 : null;
+    vals.yieldTiles = [
+      T('NOI', rub(noiF), 'в годовом выражении ' + rub(noiY), 'аренда + управление − CAPEX', GREY, '', th.text, '20px',
+        'Доходы: начисленная аренда и плата за управление минус скидки; расходы — невозмещаемые CAPEX за 01.01–31.08.2026'),
+      T('Cap rate', capPct === null ? '—' : f1(capPct), '', 'NOI годовых ' + rub(noiYp) + ' / стоимость активов ' + rub(priceS),
+        GREY, '', col(capPct)),
+      T('Полная доходность актива', fullPct === null ? '—' : f1(fullPct), '',
+        dynS ? 'cap rate + ожидаемая динамика ' + rub(dynS) : 'cap rate; ожидаемая динамика не задана', GREY, '', col(fullPct)),
+      T('YoC', yocPct === null ? '—' : f1(yocPct), '', 'NOI годовых ' + rub(noiY) + ' / OPEX ' + rub(opexS), GREY, '', col(yocPct)),
+      T('Возвращённый OPEX', opexS > 0 ? f1(backS / opexS * 100) : '—', '', rub(backS) + ' из OPEX ' + rub(opexS), GREY, '', '#2b4a8c'),
+      T('Ставка ниже рынка', ru(C('rentBelowMkt')), area(Ar('rentBelowMkt')), 'действующая ставка ниже рыночной более чем на 2%', ORANGE, '', '#8a5c1a'),
+      T('Ставка по рынку и выше', ru(C('rentAboveMkt')), area(Ar('rentAboveMkt')), 'действующая ставка не ниже рыночной', GREEN),
+      T('Общая доходность вложений', totPct === null ? '—' : f1(totPct), rub(noiYg + growS) + '/год',
+        'NOI ' + rub(noiYg) + ' + прирост ' + rub(growS), GREY, 'без учёта НТО, остановок и ЗУ — цены не установлены',
+        totPct !== null && totPct >= norm ? GREEN : RED),
+      T('Доходность вложений ниже нормы', ru(C('effBelow')), area(Ar('effBelow')), 'общая доходность вложений < ' + norm + '%', RED),
+      T('Доходность вложений выше нормы', ru(C('effAbove')), area(Ar('effAbove')), 'общая доходность вложений ≥ ' + norm + '%', GREEN),
+    ];
+
+    // Стройка и контроль
+    vals.buildTiles = [
+      T('В простое 6+ мес', ru(V('stuck6Count')), area(V('stuck6Area')),
+        'потери: ' + rub(V('stuck6Loss')), GREY, 'площадь × ставка помещения × срок простоя'),
+      T('Потери по стройготовности', rub(V('buildLossSum')), ru(C('buildLoss')) + ' пом. · ' + area(Ar('buildLoss')),
+        'площадь без РНВ и без стройготовности × ставка × 8 мес', RED, '', RED, '20px'),
+    ];
+
+    // Финансы
+    vals.finTiles = [
+      T('Сумма продаж (факт)', rub(V('soldSum')), 'агентское вознаграждение: ' + rub(V('soldAgentFee')),
+        '', GREY, soldGap, th.text, '18px'),
+      T('Непроданный портфель (рыночная)', rub(V('unsoldSum')), 'прирост цены: ' + rub(Y('growS')) + '/год',
+        opexG > 0 ? this.ru(Y('growS') / opexG * 100, 1) + '% годовых к OPEX' : '—', GREY,
+        'без учёта НТО, остановок и ЗУ — цены не установлены', th.text, '18px'),
+      T('Арендная плата с начала года', rub(V('rentYtdSum')), '01.01–31.08.2026', 'по реестрам договоров аренды', GREY, '', th.text, '18px'),
+      T('Дебиторская задолженность', '—', 'нет данных о начислениях', '', GREY, '', th.muted, '18px'),
+    ];
+
+    // «Проблемы» и «Маркеры эффективности» — те же строки, что в сводке каждой очереди
+    vals.problemsVisible = !!this.state.problemsVisible;
+    vals.efficiencyVisible = !!this.state.efficiencyVisible;
+    vals.toggleProblems = () => this.setState((st) => ({ problemsVisible: !st.problemsVisible, efficiencyVisible: false }));
+    vals.toggleEfficiency = () => this.setState((st) => ({ efficiencyVisible: !st.efficiencyVisible, problemsVisible: false }));
+    {
+      let bad = 0;
+      vals.problemGroups = R.map((r) => {
+        const rows = (r.vals.problemRows || []).filter((p) => /Нарушение:|Риск|Просроч/i.test(p.verdict || ''))
+          .map((p) => ({ title: p.title, verdict: p.verdict, color: p.color }));
+        bad += rows.length;
+        return { name: r.jk.name, rows: rows };
+      }).filter((g) => g.rows.length);
+      vals.problemsNote = bad
+        ? 'показаны только сработавшие проверки — ' + bad + ' из ' + R.reduce((a, r) => a + ((r.vals.problemRows || []).length), 0)
+        : 'нарушений нет ни по одной очереди';
+      vals.effGroups = R.map((r) => ({ name: r.jk.name, rows: (r.vals.effRows || []) }));
+    }
+
+    // Квартальная динамика договоров
+    vals.qTiles = [
+      T('Подписано', ru(C('qSigned')), area(Ar('qSigned')), 'III кв. 2026'),
+      T('Активировано', ru(C('qActivated')), area(Ar('qActivated')), 'передано арендатору · III кв. 2026'),
+      T('В работе', ru(C('qWorking')), area(Ar('qWorking')), 'каникулы закончились · III кв. 2026', GREEN),
+      T('Расторгнуто до начала работы', ru(C('qTermBefore')), area(Ar('qTermBefore')), 'каникулы не закончились · III кв. 2026', ORANGE),
+      T('Расторгнуто после начала работы', ru(C('qTermAfter')), area(Ar('qTermAfter')), 'арендатор работал · III кв. 2026', RED),
+    ];
+  }
+
+  build() {
+    const out = [];
+    const R = this.rollup();
+    for (const jk of this.jks) {
+      const r = R && R.filter((x) => x.jk.key === jk.key)[0];
+      const agg = r ? this.rowOf(r) : this.aggregate(jk);
+      if (!agg) continue;
+      const res = this.residentsOf(jk);
+      const monthLabel = res ? ' · ' + String(res.month).toLowerCase() : '';
+      out.push({
+        key: jk.key, name: jk.name, href: jk.href,
+        note: jk.label + (res ? ' · ' + this.nPlural(res.houses, 'дом', 'дома', 'домов') : '') + monthLabel,
+        n: agg.n, area: agg.area, sold: agg.sold, rent: agg.rent, free: agg.free, other: agg.other,
+        nto: agg.nto, ntoRent: agg.ntoRent,
+        residents: res ? res.residents : null,
+      });
+    }
+    return out;
+  }
+
+  renderVals() {
+    const vals = {};
+    const theme = this.props.theme || 'light';
+    const th = theme === 'dark'
+      ? { pageBg: '#1c1b18', cardBg: '#28261f', border: '#463f31', text: '#f0ece2', muted: '#a89f8f', hover: '#332f26' }
+      : { pageBg: '#f4f2ee', cardBg: '#fffdf9', border: '#ddd8cd', text: '#2b2a27', muted: '#6b6a64', hover: '#f7f5f0' };
+    vals.pageBg = th.pageBg; vals.cardBg = th.cardBg; vals.borderColor = th.border;
+    vals.textColor = th.text; vals.mutedColor = th.muted; vals.hoverBg = th.hover;
+
+    const mode = this.state.mode || this.props.unitMode || 'area';
+    const isArea = mode === 'area';
+    const val = (pair) => isArea ? (pair[1] ? this.ru(pair[1]) : '—') : (pair[0] ? this.ru(pair[0]) : '—');
+
+    vals.modeCountBg = isArea ? 'transparent' : th.text;
+    vals.modeCountFg = isArea ? th.muted : th.pageBg;
+    vals.modeAreaBg = isArea ? th.text : 'transparent';
+    vals.modeAreaFg = isArea ? th.pageBg : th.muted;
+    vals.setModeCount = () => this.setState({ mode: 'count' });
+    vals.setModeArea = () => this.setState({ mode: 'area' });
+
+    this.rollVals(vals, th);
+
+    const list = this.build();
+    vals.empty = list.length === 0;
+
+    const vacOf = (d) => {
+      const pool = d.free[1] + d.rent[1];
+      return pool ? d.free[1] / pool : null;
+    };
+    const sorters = {
+      name: (a, b) => a.name.localeCompare(b.name, 'ru'),
+      total: (a, b) => (isArea ? a.area - b.area : a.n - b.n),
+      sold: (a, b) => a.sold[isArea ? 1 : 0] - b.sold[isArea ? 1 : 0],
+      rent: (a, b) => a.rent[isArea ? 1 : 0] - b.rent[isArea ? 1 : 0],
+      free: (a, b) => a.free[isArea ? 1 : 0] - b.free[isArea ? 1 : 0],
+      vac: (a, b) => (vacOf(a) === null ? -1 : vacOf(a)) - (vacOf(b) === null ? -1 : vacOf(b)),
+      res: (a, b) => (a.residents || 0) - (b.residents || 0),
+    };
+    const sorted = list.slice();
+    if (this.state.sort && sorters[this.state.sort]) sorted.sort((a, b) => sorters[this.state.sort](a, b) * this.state.dir);
+
+    const toggle = (key) => () => this.setState((s) => ({ sort: key, dir: s.sort === key ? -s.dir : (key === 'name' ? 1 : -1) }));
+    vals.sortByName = toggle('name'); vals.sortByTotal = toggle('total'); vals.sortBySold = toggle('sold');
+    vals.sortByRent = toggle('rent'); vals.sortByFree = toggle('free'); vals.sortByVac = toggle('vac'); vals.sortByRes = toggle('res');
+
+    vals.rows = sorted.map((d) => {
+      const v = vacOf(d);
+      const hot = v !== null && v >= 0.5;
+      const warm = v !== null && v >= 0.25 && v < 0.5;
+      return {
+        name: d.name, note: d.note, href: d.href,
+        total: isArea ? this.ru(d.area) : this.ru(d.n),
+        sold: val(d.sold), rent: val(d.rent), free: val(d.free), other: val(d.other),
+        vac: v === null ? '—' : this.ru(v * 100, 1) + '%',
+        vacBg: v === null ? 'transparent' : (hot ? (theme === 'dark' ? '#3a2420' : '#faf0ee') : warm ? (theme === 'dark' ? '#3a2c17' : '#fbf3e6') : (theme === 'dark' ? '#1f3324' : '#eef6ee')),
+        vacFg: v === null ? th.muted : th.text,
+        residents: d.residents ? this.ru(d.residents) : 'нет данных',
+        perRes: d.residents ? this.ru(d.area / d.residents, 1) + ' м²/чел' : '—',
+      };
+    });
+
+    const sum = (f) => list.reduce((s, d) => s + f(d), 0);
+    const tFreeA = sum((d) => d.free[1]); const tRentA = sum((d) => d.rent[1]);
+    const tSoldA = sum((d) => d.sold[1]); const tRes = sum((d) => d.residents || 0);
+    const tAreaAll = sum((d) => d.area);
+    vals.totalLabel = 'Итого, 6 очередей';
+    vals.tTotal = isArea ? this.ru(tAreaAll) : this.ru(sum((d) => d.n));
+    vals.tSold = val([sum((d) => d.sold[0]), tSoldA]);
+    vals.tRent = val([sum((d) => d.rent[0]), tRentA]);
+    vals.tFree = val([sum((d) => d.free[0]), tFreeA]);
+    vals.tOther = val([sum((d) => d.other[0]), sum((d) => d.other[1])]);
+    vals.tVac = (tFreeA + tRentA) ? this.ru(tFreeA / (tFreeA + tRentA) * 100, 1) + '%' : '—';
+    vals.tRes = this.ru(tRes);
+    vals.tPerRes = tRes ? this.ru(tAreaAll / tRes, 1) + ' м²/чел' : '—';
+
+    // карта трафика по всему району: веса магнитов из реестров аренды (traffic.js)
+    vals.trafficVisible = !!this.state.trafficVisible;
+    vals.toggleTraffic = () => this.setState((st) => ({ trafficVisible: !st.trafficVisible }));
+    vals.trafficBtnBg = this.state.trafficVisible ? '#a3312b' : 'transparent';
+    vals.trafficBtnFg = this.state.trafficVisible ? '#ffffff' : '#a3312b';
+    {
+      const sc = [];
+      for (const jk of this.jks) {
+        const src = window['__SM_DATA_' + jk.data];
+        if (!src || !window.OMTraffic || !window.OMTraffic.scoreReg) continue;
+        const r = window.OMTraffic.scoreReg(src.tenantsReg || {});
+        sc.push({ jk, own: r.own, n: r.anchors.length, cats: r.cats, byCat: r.byCat || {}, anchors: r.anchors || [] });
+      }
+      const maxOwn = sc.reduce((m, x) => Math.max(m, x.own), 0);
+      const rel = (x) => maxOwn ? x.own / maxOwn : 0;
+      // цвета и веса категорий — порядок как в traffic.js
+      const CAT = [
+        ['ПВЗ и постаматы', '#a3312b', '3'],
+        ['Продукты и напитки', '#c2703c', '3'],
+        ['Аптеки и медицина', '#3a7a42', '2,5'],
+        ['Пекарни и кофе', '#c98a2b', '2'],
+        ['Общепит', '#8a5a2b', '1,5'],
+        ['Детское и образование', '#4a6fa5', '1,5'],
+        ['Спорт', '#2f7d7a', '1,5'],
+        ['Красота', '#a34b7d', '1,2'],
+        ['Услуги и финансы', '#6b665c', '1'],
+        ['Бытовые услуги', '#8a8479', '1'],
+        ['Прочее', '#4b2e83', '0,5'],
+      ];
+      const colorOf = {}; CAT.forEach((c) => { colorOf[c[0]] = c[1]; });
+      // кольцо маркера — доли категорий арендаторов очереди
+      const ringOf = (byCat, n) => {
+        if (!n) return '#d8d3c8';
+        let acc = 0; const stops = [];
+        for (const c of CAT) {
+          const v = byCat[c[0]] || 0;
+          if (!v) continue;
+          const from = (acc / n) * 100; acc += v;
+          stops.push(c[1] + ' ' + from.toFixed(1) + '% ' + ((acc / n) * 100).toFixed(1) + '%');
+        }
+        return stops.length ? 'conic-gradient(from -90deg, ' + stops.join(', ') + ')' : '#d8d3c8';
+      };
+      const short = (jk) => jk.name.replace('ЖК «Самолёт ', 'С').replace('»', '');
+      vals.catCols = sc.map((x) => short(x.jk));
+      const totalByCat = {};
+      for (const x of sc) for (const k in x.byCat) totalByCat[k] = (totalByCat[k] || 0) + x.byCat[k];
+      vals.catLegend = CAT.filter((c) => totalByCat[c[0]]).map((c) => ({ name: c[0], color: c[1], total: this.ru(totalByCat[c[0]]) }));
+      const maxCell = sc.reduce((m, x) => Math.max(m, Object.keys(x.byCat).reduce((mm, k) => Math.max(mm, x.byCat[k]), 0)), 0);
+      vals.catRows = CAT.filter((c) => totalByCat[c[0]]).map((c) => ({
+        name: c[0], color: c[1], weight: c[2], total: this.ru(totalByCat[c[0]]),
+        cells: sc.map((x) => {
+          const v = x.byCat[c[0]] || 0;
+          const rr = maxCell ? v / maxCell : 0;
+          return {
+            text: v ? this.ru(v) : '·',
+            weight: v ? '700' : '400',
+            fg: v ? th.text : th.muted,
+            bg: v ? (theme === 'dark' ? 'rgba(163,49,43,' + (0.18 + rr * 0.4).toFixed(2) + ')' : 'rgba(163,49,43,' + (0.07 + rr * 0.22).toFixed(2) + ')') : 'transparent',
+          };
+        }),
+      }));
+      vals.trafficRows = sc.slice().sort((a, b) => b.own - a.own).map((x) => {
+        const v = rel(x);
+        return {
+          name: x.jk.name, magnets: this.ru(x.n), idx: Math.round(v * 100) + '%',
+          idxBg: v >= 0.66 ? (theme === 'dark' ? '#1f3324' : '#eef6ee') : v >= 0.33 ? (theme === 'dark' ? '#3a2c17' : '#fbf3e6') : 'transparent',
+          cats: x.cats.filter((c) => !/^Прочее/.test(c)).slice(0, 4).join(' · ') || 'магнитов в реестре нет',
+        };
+      });
+      // размещение торговых точек прямо на общем генплане: центр подъезда из геометрии
+      // генплана очереди пересчитывается в координаты master_genplan.jpg через её рамку
+      {
+        const MB = (window.OMGeo && window.OMGeo.master && window.OMGeo.master.boxes) || {};
+        const cen = (poly) => {
+          const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
+          return [(Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2,
+                  (Math.min.apply(null, ys) + Math.max.apply(null, ys)) / 2];
+        };
+        const pins = [];
+        let placed = 0, total = 0;
+        for (const x of sc) {
+          const geo = window.OMGeo && window.OMGeo[x.jk.key];
+          total += x.anchors.length;
+          if (!geo) continue;
+          const byLiter = {};
+          for (const a of x.anchors) { (byLiter[a.liter] = byLiter[a.liter] || []).push(a); }
+          for (const part of geo.parts) {
+            const b = MB[part.img];
+            if (!b) continue;
+            for (const key in part.polys) {
+              const list = byLiter[key];
+              if (!list || !list.length) continue;
+              const c = cen(part.polys[key]);
+              list.forEach((a, i) => {
+                const off = (i - (list.length - 1) / 2) * 2.4;
+                const big = /магнит|пятёрочка|пятерочка/i.test(a.name || '');
+                const px = big ? 17 : (a.w >= 2.5 ? 13 : a.w >= 1.5 ? 11 : 9);
+                pins.push({
+                  left: ((b.x + Math.max(0, Math.min(100, c[0] + off)) / 100 * b.w) * 100).toFixed(3) + '%',
+                  top: ((b.y + c[1] / 100 * b.h) * 100).toFixed(3) + '%',
+                  size: px + 'px',
+                  // «Магнит» и «Пятёрочка» — треугольником
+                  radius: big ? '1px' : '50%',
+                  clip: big ? 'polygon(50% 0%, 100% 100%, 0% 100%)' : 'none',
+                  ring: big ? '0' : '1.5px',
+                  big: big,
+                  innerSize: (px - 4) + 'px',
+                  innerTop: '3px',
+                  color: colorOf[a.cat] || '#4b2e83',
+                  outerColor: big ? '#ffffff' : (colorOf[a.cat] || '#4b2e83'),
+                  title: a.name + ' · ' + a.cat + ' · ' + x.jk.name + ', ' + ((geo.names || {})[key] || key)
+                    + (a.unit ? ', пом. ' + a.unit : '') + (a.area ? ' · ' + this.ru(a.area, 1) + ' м²' : ''),
+                });
+                placed++;
+              });
+            }
+          }
+        }
+        vals.geoPins = pins;
+        vals.geoNote = 'Точка = помещение с трафикогенерирующим арендатором: стоит в своём подъезде по геометрии генплана очереди, цвет — категория, размер — вес категории в индексе. Наведите на точку, чтобы увидеть бренд, литер, помещение и площадь. Размещено ' + this.ru(placed) + ' из ' + this.ru(total) + ' (остальные — НТО, ЗУ и помещения без геометрии подъезда).';
+      }
+      const tot = sc.reduce((s2, x) => s2 + x.n, 0);
+      vals.trafficTotal = tot ? this.nPlural(tot, 'магнит', 'магнита', 'магнитов') + ' в реестрах шести очередей' : 'нет данных';
+      vals.trafficNote = 'Индекс трафика очереди = сумма весов трафикогенерирующих арендаторов её реестра, нормированная на максимум по району. Веса: ПВЗ и продукты 3, аптеки и медицина 2,5, пекарни и кофе 2, общепит, детское и спорт 1,5, красота 1,2, услуги и бытовое 1, прочее 0,5. Данных счётчиков посещаемости нет — расчёт по реестрам аренды.';
+    }
+    return vals;
+  }
+}
+</script>
+</body>
+</html>
